@@ -19,12 +19,6 @@
         RHX = 2,
 
         /// <summary>
-        /// An implementation based on the Rijndael and Serpent Merged Block Cipher
-        /// </summary>
-        RSM = 3,
-
-
-        /// <summary>
         /// An implementation based on the Serpent Block Cipher
         /// </summary>
         Serpent = 4,
@@ -40,5 +34,15 @@
         /// An implementation based on the Twofish Block Cipher extended with an HKDF key schedule
         /// </summary>
         THX = 32,
+
+        /// <summary>
+        /// An implementation based on the Rijndael and Serpent Merged Block Cipher
+        /// </summary>
+        RSM = 1003,
+
+        /// <summary>
+        /// An implementation based on the Twofish and Serpent Merged Block Ciphers, using an HKDF Key Schedule
+        /// </summary>
+        TSM = 1004
     }
 }
