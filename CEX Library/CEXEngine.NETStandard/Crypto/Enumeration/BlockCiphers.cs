@@ -17,6 +17,13 @@
         /// An implementation based on the Rijndael Block Cipher extended with an HKDF key schedule
         /// </summary>
         RHX = 2,
+
+        /// <summary>
+        /// An implementation based on the Rijndael and Serpent Merged Block Cipher
+        /// </summary>
+        RSM = 3,
+
+
         /// <summary>
         /// An implementation based on the Serpent Block Cipher
         /// </summary>
