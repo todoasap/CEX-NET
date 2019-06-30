@@ -114,9 +114,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CEXEngine\CEXEngine.csproj">
-      <Project>{F63F1625-804A-431D-99A7-8D636B0766DE}</Project>
-      <Name>CEXEngine</Name>
+    <ProjectReference Include="..\CEXEngine.NETStandard\CEXEngine.NETStandard.csproj">
+      <Project>{35b67f9a-53a1-41cd-9b43-b494064dcced}</Project>
+      <Name>CEXEngine.NETStandard</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.421
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CEXEngine", "CEXEngine\CEXEngine.csproj", "{F63F1625-804A-431D-99A7-8D636B0766DE}"
 EndProject
@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTMClient", "DTMClient\DTMC
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTMServer", "DTMServer\DTMServer.csproj", "{FAAEB21A-92B9-4068-8423-75C797A74FA5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CEXEngine.NETStandard", "CEXEngine.NETStandard\CEXEngine.NETStandard.csproj", "{35B67F9A-53A1-41CD-9B43-B494064DCCED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,8 +99,23 @@ Global
 		{FAAEB21A-92B9-4068-8423-75C797A74FA5}.Release|x64.Build.0 = Release|Any CPU
 		{FAAEB21A-92B9-4068-8423-75C797A74FA5}.Release|x86.ActiveCfg = Release|x86
 		{FAAEB21A-92B9-4068-8423-75C797A74FA5}.Release|x86.Build.0 = Release|x86
+		{35B67F9A-53A1-41CD-9B43-B494064DCCED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35B67F9A-53A1-41CD-9B43-B494064DCCED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35B67F9A-53A1-41CD-9B43-B494064DCCED}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{35B67F9A-53A1-41CD-9B43-B494064DCCED}.Debug|x64.Build.0 = Debug|Any CPU
+		{35B67F9A-53A1-41CD-9B43-B494064DCCED}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{35B67F9A-53A1-41CD-9B43-B494064DCCED}.Debug|x86.Build.0 = Debug|Any CPU
+		{35B67F9A-53A1-41CD-9B43-B494064DCCED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35B67F9A-53A1-41CD-9B43-B494064DCCED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35B67F9A-53A1-41CD-9B43-B494064DCCED}.Release|x64.ActiveCfg = Release|Any CPU
+		{35B67F9A-53A1-41CD-9B43-B494064DCCED}.Release|x64.Build.0 = Release|Any CPU
+		{35B67F9A-53A1-41CD-9B43-B494064DCCED}.Release|x86.ActiveCfg = Release|Any CPU
+		{35B67F9A-53A1-41CD-9B43-B494064DCCED}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9E02E7BE-9E37-44DE-9F0B-4B6478607186}
 	EndGlobalSection
 EndGlobal

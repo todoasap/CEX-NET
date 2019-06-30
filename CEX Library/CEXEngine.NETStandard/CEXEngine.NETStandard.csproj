@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Crypto\Digest\Blake256.cs" />
+    <Compile Remove="Crypto\Digest\Blake512.cs" />
+    <Compile Remove="Crypto\Mac\VMAC.cs" />
+    <Compile Remove="Crypto\Seed\XSPRsg.cs" />
+  </ItemGroup>
+
+</Project>
