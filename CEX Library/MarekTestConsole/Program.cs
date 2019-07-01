@@ -52,7 +52,7 @@ namespace MarekTestConsole
             //////encryptedData.Salt = keyParams.IKM;
 
             // RSM: Rijndael and Serpent merged. HKDF key schedule and up to 42 rounds of diffusion
-            using (ICipherMode cipher = new CTR(new TSM(32))) //, 32))) // TODO:  42, 32)))  ... for RSM: RSM(18, 32)
+            using (ICipherMode cipher = new CTR(new RSM(42, 32))) // TSM(32))) //, 32))) // TODO:  42, 32)))  ... for RSM: RSM(18, 32)
             {
                 // init with key and iv
                 //////cipher.Initialize(true, keyParams);
@@ -110,7 +110,7 @@ namespace MarekTestConsole
             ////KeyParams kp = new KeyParams(keyParams.Key, keyParams.IV, new byte[3] { 1, 2, 3 });
 
             // RSM: Rijndael and Serpent merged. HKDF key schedule and up to 42 rounds of diffusion
-            using (ICipherMode cipher = new CTR(new TSM(32))) //, 32))) // TODO: Test TSM! ... for RSM: RSM(18, 32)
+            using (ICipherMode cipher = new CTR(new RSM(42, 32))) // TSM(32))) //, 32))) // TODO: Test TSM! ... for RSM: RSM(18, 32)
             {
                 // init with key and iv
                 //////cipher.Initialize(false, keyParams);
@@ -150,7 +150,7 @@ namespace MarekTestConsole
 
             using (KeyGenerator kg = new KeyGenerator())
             {
-                keyParams = kg.GetKeyParams(192, 16, 16); // for RSM: kg.GetKeyParams(192, 32, 32);
+                keyParams = kg.GetKeyParams(192, 32, 32);  //kg.GetKeyParams(192, 16, 16); // for RSM: kg.GetKeyParams(192, 32, 32);
             }
 
 

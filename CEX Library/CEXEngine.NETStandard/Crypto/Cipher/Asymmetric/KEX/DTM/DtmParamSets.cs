@@ -200,7 +200,21 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
             /// <para>Authentication Stage: Ring-LWE and 16 rounds of Twofish.
             /// Primary Stage: NTRU and 16 rounds of Twofish.</para>
             /// </summary>
-            X44RNT1T1
+            X44RNT1T1,
+
+
+
+
+            /// <summary>
+            /// Class 1, X1.1 Configuration: Optimized for maximum security.
+            /// <para>TODO: Document</para>
+            /// </summary>
+            X99SUPER1,
+            /// <summary>
+            /// Class 1, X1.1 Configuration: Optimized for maximum security.
+            /// <para>TODO: Document</para>
+            /// </summary>
+            X99SUPER2
         }
 
         /// <summary>
@@ -354,7 +368,11 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
         {
             // x1
             if (Compare.IsEqual(OId, GetID(DtmParamNames.X11RNS1R2)) || Compare.IsEqual(OId, GetID(DtmParamNames.X12RNR1R2)) ||
-                Compare.IsEqual(OId, GetID(DtmParamNames.X13RNS1S2)) || Compare.IsEqual(OId, GetID(DtmParamNames.X14RNT1T2)))
+                Compare.IsEqual(OId, GetID(DtmParamNames.X13RNS1S2)) || Compare.IsEqual(OId, GetID(DtmParamNames.X14RNT1T2))
+
+                 || Compare.IsEqual(OId, GetID(DtmParamNames.X99SUPER1)) || Compare.IsEqual(OId, GetID(DtmParamNames.X99SUPER2))
+
+                )
                 return SecurityContexts.X1;
             // x2
             else if (Compare.IsEqual(OId, GetID(DtmParamNames.X21RNS1R2)) || Compare.IsEqual(OId, GetID(DtmParamNames.X22RNR1R2)) ||
@@ -390,6 +408,9 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
                 case DtmParamNames.X12RNR1R2:
                 case DtmParamNames.X13RNS1S2:
                 case DtmParamNames.X14RNT1T2:
+
+                case DtmParamNames.X99SUPER1:
+                case DtmParamNames.X99SUPER2:
                     return SecurityContexts.X1;
                 // x2
                 case DtmParamNames.X21RNS1R2:
@@ -444,6 +465,21 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
                     return ArrayUtils.Concat(RLWEParamSets.GetID(RLWEParamSets.RLWEParamNames.N512Q12289),
                         NTRUParamSets.GetID(NTRUParamSets.NTRUParamNames.CX1931),
                         new byte[] { (byte)BlockCiphers.Twofish, (byte)Digests.Skein256, (byte)BlockCiphers.Twofish, (byte)Digests.Skein512, 1, 4, 0, 0 });
+
+
+                case DtmParamNames.X99SUPER1:
+                    return ArrayUtils.Concat(RLWEParamSets.GetID(RLWEParamSets.RLWEParamNames.N512Q12289),
+                        NTRUParamSets.GetID(NTRUParamSets.NTRUParamNames.CX1931),
+                        new byte[] { (byte)BlockCiphers.RSM, (byte)Digests.Skein256, (byte)BlockCiphers.RSM, (byte)Digests.Skein512, 1, 1, 0, 0 });
+
+                case DtmParamNames.X99SUPER2:
+                    return ArrayUtils.Concat(RLWEParamSets.GetID(RLWEParamSets.RLWEParamNames.N512Q12289),
+                        NTRUParamSets.GetID(NTRUParamSets.NTRUParamNames.CX1931),
+                        new byte[] { (byte)BlockCiphers.TSM, (byte)Digests.Skein256, (byte)BlockCiphers.TSM, (byte)Digests.Skein512, 1, 1, 0, 0 });
+
+
+
+
                 // x2
                 case DtmParamNames.X21RNS1R2:
                     return ArrayUtils.Concat(RLWEParamSets.GetID(RLWEParamSets.RLWEParamNames.N512Q12289),
@@ -621,6 +657,59 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
             100,
             100,
             200);
+
+
+
+
+
+
+        /// <summary>
+        /// Class 1, X1.1 Configuration: Optimized for maximum security.
+        /// <para>Authentication Stage: Ring-LWE and 32 rounds of Serpent.
+        /// Primary Stage: NTRU and 22 rounds of RHX with the Skein-512 powered Kdf.
+        /// Random bytes appended and prepended to exchange entities and message packets.
+        /// Maximum 200 Millisecond transmission delay post primary key creation.</para>
+        /// </summary>
+        public static readonly DtmParameters DTMX99SUPER1 = new DtmParameters( // TODO: Consider implementation
+            // the 16 byte idetifier field containing a description of the cipher (see class notes)
+            GetID(DtmParamNames.X99SUPER1),
+            // the auth-stage asymmetric ciphers parameter oid (can also be a serialized parameter)
+            RLWEParamSets.GetID(RLWEParamSets.RLWEParamNames.N512Q12289),
+            // the primary-stage asymmetric ciphers parameter oid
+            NTRUParamSets.GetFormatted(NTRUParamSets.NTRUParamNames.CX1931, 0.2),
+            // the auth-stage symmetric ciphers description
+            new DtmSessionStruct(BlockCiphers.Serpent, 32, IVSizes.V128, RoundCounts.R32, Digests.Skein256),
+            // the primary-stage symmetric ciphers description
+            new DtmSessionStruct(BlockCiphers.Rijndael, 64, IVSizes.V128, RoundCounts.R22, Digests.Skein512),
+            // the random generator used to pad messages
+            Prngs.CSPPrng,
+            // the maximum number of random bytes appended to a public key (actual number of bytes is chosen at random)
+            1000,
+            // the maximum number of random bytes prepended to a public key
+            1000,
+            // the maximum number of random bytes appended to the primary auth exchange (including asymmetric parameters)
+            200,
+            // the maximum number of random bytes prepended to the primary auth exchange
+            200,
+            // the maximum number of random bytes appended to the primary symmetric key exchange
+            200,
+            // the maximum number of random bytes prepended to the primary symmetric key exchange
+            200,
+            // the maximum number of random bytes appended to each post-exchange message (apply message append/prepend to hide the message type)
+            0,
+            // the maximum number of random bytes prepended to each post-exchange message
+            0,
+            // the maximum delay time before transmitting the primary public key (actual time is a random number of milliseconds up to this value)
+            200,
+            // the maximum delay time before transmitting the symmetric key
+            10,
+            // the maximum delay time before transmitting a message
+            0);
+
+
+
+
+
         #endregion
 
         #region X2

@@ -38,11 +38,11 @@
         /// <summary>
         /// An implementation based on the Rijndael and Serpent Merged Block Cipher
         /// </summary>
-        RSM = 1003,
+        RSM = 103,
 
         /// <summary>
         /// An implementation based on the Twofish and Serpent Merged Block Ciphers, using an HKDF Key Schedule
         /// </summary>
-        TSM = 1004
+        TSM = 104
     }
 }
