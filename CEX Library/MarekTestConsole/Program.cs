@@ -36,47 +36,58 @@ namespace MarekTestConsole
 
             //// create the key file
             //new KeyFactory(KeyPath).Create(keyHeader);
-            
 
 
-            if (keyParams == null)
-            {
-                using (KeyGenerator kg = new KeyGenerator())
-                {
-                    keyParams = kg.GetKeyParams(192, 64, 64);
-                }
-            }
+
+            ////if (keyParams == null)
+            ////{
+            ////    using (KeyGenerator kg = new KeyGenerator())
+            ////    {
+            ////        keyParams = kg.GetKeyParams(192, 64, 64);
+            ////    }
+            ////}
 
             //////encryptedData.Key = keyParams.Key;
             //////encryptedData.Iv = keyParams.IV;
             //////encryptedData.Salt = keyParams.IKM;
 
             // RSM: Rijndael and Serpent merged. HKDF key schedule and up to 42 rounds of diffusion
-            using (ICipherMode cipher = new CTR(new RSM())) // TODO:  42, 32))) // TODO: Test TSM!
+            using (ICipherMode cipher = new CTR(new TSM(32))) //, 32))) // TODO:  42, 32)))  ... for RSM: RSM(18, 32)
             {
                 // init with key and iv
-                cipher.Initialize(true, keyParams);
+                //////cipher.Initialize(true, keyParams);
 
                 /*
                     The Compression cipher wraps the StreamCipher class by first compressing a target directory, then encrypting the compressed file. Decryption inflates the directory to a target path.
                 */
                 ////using (CompressionCipher cstrm = new CompressionCipher(true, cipher))
+                ///
+
+
+                //////using (CipherStream sc = new CipherStream(cipher))
+                //////{
+                //////    MemoryStream dataOut = new MemoryStream();
+                //////    sc.Initialize(true, keyParams);
+                //////    // encrypt the buffer
+                //////    sc.Write(new MemoryStream(dataIn), dataOut);
+                //////    return dataOut.ToArray();
+                //////}
+
+
+
                 using (CompressionCipher cstrm = new CompressionCipher(cipher))
                 {
-                    ////cstrm.ProgressPercent += new StreamCipher.ProgressDelegate(TestProgressPercent);
-                    MemoryStream dataOut = new MemoryStream();
-
-
-                    // TODO: Use disposable clauses!!! Mem Stre etc
-
-
-                    cstrm.Initialize(true, keyParams); // dataIn, dataOut, true);
-                    cstrm.Write(new MemoryStream(dataIn), dataOut);
-                    //////encryptedData.Content = dataOut.ToArray();
-                    return dataOut.ToArray();
+                    using (MemoryStream dataInStream = new MemoryStream(dataIn))
+                    using (MemoryStream dataOutStream = new MemoryStream())
+                    {
+                        //////var dataInMemStream = ; // TODO: rollup in Initialize
+                        cstrm.Initialize(true, keyParams);
+                        cstrm.Write(dataInStream, dataOutStream);
+                        return dataOutStream.ToArray();
+                    }
                 }
             }
-            
+
             //////return encryptedData;
         }
 
@@ -92,33 +103,41 @@ namespace MarekTestConsole
         //    return Security.Encryption.DecryptToString(encryptedData);
         //}
 
-        public static byte[] Decrypt(byte[] data, KeyParams keyParams) //, string passphrase = null)
+        public static byte[] Decrypt(byte[] dataIn, KeyParams keyParams) //, string passphrase = null)
         {
             //byte[] decryptedData = null;
 
-            KeyParams kp = new KeyParams(keyParams.Key, keyParams.IV, new byte[3] { 1, 2, 3 });
+            ////KeyParams kp = new KeyParams(keyParams.Key, keyParams.IV, new byte[3] { 1, 2, 3 });
 
             // RSM: Rijndael and Serpent merged. HKDF key schedule and up to 42 rounds of diffusion
-            using (ICipherMode cipher = new CTR(new RSM())) // TODO: Test TSM!
+            using (ICipherMode cipher = new CTR(new TSM(32))) //, 32))) // TODO: Test TSM! ... for RSM: RSM(18, 32)
             {
                 // init with key and iv
-                cipher.Initialize(false, kp);
+                //////cipher.Initialize(false, keyParams);
 
-                ////using (CompressionCipher cstrm = new CompressionCipher(true, cipher))
+                //////using (CipherStream sc = new CipherStream(cipher))
+                //////{
+                //////    MemoryStream dataOut = new MemoryStream();
+                //////    sc.Initialize(false, keyParams);
+                //////    // encrypt the buffer
+                //////    sc.Write(new MemoryStream(dataIn), dataOut);
+                //////    return dataOut.ToArray();
+                //////}
+
+                //////////using (CompressionCipher cstrm = new CompressionCipher(true, cipher))
                 using (CompressionCipher cstrm = new CompressionCipher(cipher))
                 {
-                    ////cstrm.ProgressPercent += new StreamCipher.ProgressDelegate(TestProgressPercent);
-
-                    MemoryStream dataOut = new MemoryStream();
-                    var dataInMemStream = new MemoryStream(data); // TODO: rollup in Initialize
-                    cstrm.Initialize(false, keyParams);
-                    cstrm.Write(dataInMemStream, dataOut);
-                    return dataOut.ToArray();
+                    using (MemoryStream dataInStream = new MemoryStream(dataIn))
+                    using (MemoryStream dataOutStream = new MemoryStream())
+                    {
+                        //////var dataInMemStream = ; // TODO: rollup in Initialize
+                        cstrm.Initialize(false, keyParams);
+                        cstrm.Write(dataInStream, dataOutStream);
+                        return dataOutStream.ToArray();
+                    }
                 }
             }
         }
-
-
 
         static void Main(string[] args)
         {
@@ -131,7 +150,7 @@ namespace MarekTestConsole
 
             using (KeyGenerator kg = new KeyGenerator())
             {
-                keyParams = kg.GetKeyParams(192, 64, 64);
+                keyParams = kg.GetKeyParams(192, 16, 16); // for RSM: kg.GetKeyParams(192, 32, 32);
             }
 
 
