@@ -150,7 +150,7 @@ namespace MarekTestConsole
 
             using (KeyGenerator kg = new KeyGenerator())
             {
-                keyParams = kg.GetKeyParams(192, 32, 32);  //kg.GetKeyParams(192, 16, 16); // for RSM: kg.GetKeyParams(192, 32, 32);
+                keyParams = kg.GetKeyParams(192, 32, 32);  // for TSM: kg.GetKeyParams(192, 16, 16); // for RSM: kg.GetKeyParams(192, 32, 32);
             }
 
 

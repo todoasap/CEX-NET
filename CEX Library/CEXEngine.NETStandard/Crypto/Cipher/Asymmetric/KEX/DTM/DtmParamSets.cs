@@ -210,11 +210,12 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
             /// <para>TODO: Document</para>
             /// </summary>
             X99SUPER1,
-            /// <summary>
-            /// Class 1, X1.1 Configuration: Optimized for maximum security.
-            /// <para>TODO: Document</para>
-            /// </summary>
-            X99SUPER2
+            ///////// <summary>
+            ///////// Class 1, X1.1 Configuration: Optimized for maximum security.
+            ///////// <para>TODO: Document</para>
+            ///////// </summary>
+            //////X99SUPER2
+            TEST123
         }
 
         /// <summary>
@@ -270,6 +271,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
                 return (DtmParameters)DTMX13RNS1S2.DeepCopy();
             else if (Compare.IsEqual(OId, GetID(DtmParamNames.X14RNT1T2)))
                 return (DtmParameters)DTMX14RNT1T2.DeepCopy();
+
+            else if (Compare.IsEqual(OId, GetID(DtmParamNames.X99SUPER1)))
+                return (DtmParameters)DTMX99SUPER1.DeepCopy();
+
             // x2
             else if (Compare.IsEqual(OId, GetID(DtmParamNames.X21RNS1R2)))
                 return (DtmParameters)DTMX21RNS1R2.DeepCopy();
@@ -323,6 +328,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
                     return (DtmParameters)DTMX13RNS1S2.DeepCopy();
                 case DtmParamNames.X14RNT1T2:
                     return (DtmParameters)DTMX14RNT1T2.DeepCopy();
+
+                case DtmParamNames.X99SUPER1:
+                    return (DtmParameters)DTMX99SUPER1.DeepCopy();
+
                 // x2
                 case DtmParamNames.X21RNS1R2:
                     return (DtmParameters)DTMX21RNS1R2.DeepCopy();
@@ -370,7 +379,7 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
             if (Compare.IsEqual(OId, GetID(DtmParamNames.X11RNS1R2)) || Compare.IsEqual(OId, GetID(DtmParamNames.X12RNR1R2)) ||
                 Compare.IsEqual(OId, GetID(DtmParamNames.X13RNS1S2)) || Compare.IsEqual(OId, GetID(DtmParamNames.X14RNT1T2))
 
-                 || Compare.IsEqual(OId, GetID(DtmParamNames.X99SUPER1)) || Compare.IsEqual(OId, GetID(DtmParamNames.X99SUPER2))
+                 || Compare.IsEqual(OId, GetID(DtmParamNames.X99SUPER1)) ////// || Compare.IsEqual(OId, GetID(DtmParamNames.X99SUPER2))
 
                 )
                 return SecurityContexts.X1;
@@ -410,7 +419,7 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
                 case DtmParamNames.X14RNT1T2:
 
                 case DtmParamNames.X99SUPER1:
-                case DtmParamNames.X99SUPER2:
+                //case DtmParamNames.X99SUPER2:
                     return SecurityContexts.X1;
                 // x2
                 case DtmParamNames.X21RNS1R2:
@@ -472,10 +481,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
                         NTRUParamSets.GetID(NTRUParamSets.NTRUParamNames.CX1931),
                         new byte[] { (byte)BlockCiphers.RSM, (byte)Digests.Skein256, (byte)BlockCiphers.RSM, (byte)Digests.Skein512, 1, 1, 0, 0 });
 
-                case DtmParamNames.X99SUPER2:
-                    return ArrayUtils.Concat(RLWEParamSets.GetID(RLWEParamSets.RLWEParamNames.N512Q12289),
-                        NTRUParamSets.GetID(NTRUParamSets.NTRUParamNames.CX1931),
-                        new byte[] { (byte)BlockCiphers.TSM, (byte)Digests.Skein256, (byte)BlockCiphers.TSM, (byte)Digests.Skein512, 1, 1, 0, 0 });
+                //////case DtmParamNames.X99SUPER2:
+                //////    return ArrayUtils.Concat(RLWEParamSets.GetID(RLWEParamSets.RLWEParamNames.N512Q12289),
+                //////        NTRUParamSets.GetID(NTRUParamSets.NTRUParamNames.CX1931),
+                //////        new byte[] { (byte)BlockCiphers.TSM, (byte)Digests.Skein256, (byte)BlockCiphers.TSM, (byte)Digests.Skein512, 1, 1, 0, 0 });
 
 
 
@@ -670,7 +679,7 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
         /// Random bytes appended and prepended to exchange entities and message packets.
         /// Maximum 200 Millisecond transmission delay post primary key creation.</para>
         /// </summary>
-        public static readonly DtmParameters DTMX99SUPER1 = new DtmParameters( // TODO: Consider implementation
+        public static readonly DtmParameters DTMX99SUPER1 = new DtmParameters(
             // the 16 byte idetifier field containing a description of the cipher (see class notes)
             GetID(DtmParamNames.X99SUPER1),
             // the auth-stage asymmetric ciphers parameter oid (can also be a serialized parameter)
@@ -678,9 +687,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
             // the primary-stage asymmetric ciphers parameter oid
             NTRUParamSets.GetFormatted(NTRUParamSets.NTRUParamNames.CX1931, 0.2),
             // the auth-stage symmetric ciphers description
+            //////new DtmSessionStruct(BlockCiphers.THX, 192, IVSizes.V128, RoundCounts.R32, Digests.Skein256),
             new DtmSessionStruct(BlockCiphers.Serpent, 32, IVSizes.V128, RoundCounts.R32, Digests.Skein256),
             // the primary-stage symmetric ciphers description
-            new DtmSessionStruct(BlockCiphers.Rijndael, 64, IVSizes.V128, RoundCounts.R22, Digests.Skein512),
+            new DtmSessionStruct(BlockCiphers.RSM, 192, IVSizes.V256, RoundCounts.R42, Digests.Skein512),
             // the random generator used to pad messages
             Prngs.CSPPrng,
             // the maximum number of random bytes appended to a public key (actual number of bytes is chosen at random)

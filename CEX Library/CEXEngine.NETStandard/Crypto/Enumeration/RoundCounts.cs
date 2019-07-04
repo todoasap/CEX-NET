@@ -70,6 +70,14 @@
         /// 40 Rounds: SHX
         /// </summary>
         R40 = 40,
+
+
+        /// <summary>
+        /// 42 Rounds: RSM
+        /// </summary>
+        R42 = 42,
+
+
         /// <summary>
         /// 48 Rounds: SHX
         /// </summary>

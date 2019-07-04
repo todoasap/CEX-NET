@@ -35,6 +35,12 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Helper
                     return new THX();
                 case BlockCiphers.THX:
                     return new THX(20, Digests.SHA256);
+
+                case BlockCiphers.RSM:
+                    return new RSM(42, 32);
+                case BlockCiphers.TSM:
+                    return new TSM(32);
+
                 default:
                     throw new CryptoProcessingException("BlockCipherFromName:GetInstance", "The cipher engine is not supported!");
             }
@@ -66,6 +72,13 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Helper
                     return new THX();
                 case BlockCiphers.THX:
                     return new THX(RoundCount, ExtractorType);
+
+                case BlockCiphers.RSM:
+                    return new RSM(RoundCount, BlockSize);
+                case BlockCiphers.TSM:
+                    return new TSM(RoundCount);
+
+
                 default:
                     throw new CryptoProcessingException("BlockCipherFromName:GetInstance", "The cipher engine is not supported!");
             }
