@@ -283,9 +283,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmeti
         /// <returns>The status bytes</returns>
         public byte[][] GetStatByte()
         {
-
             byte[][] statByte = ArrayUtils.CreateJagged<byte[][]>(3 + _tailLength, _msgDigestTree.DigestSize);
-            statByte[0] = _firstNode;
+            statByte[0] = _firstNode ?? new byte[0]; //MZ@20190704
             statByte[1] = _seedActive;
             statByte[2] = _seedNext;
 
@@ -391,9 +390,21 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmeti
         public MemoryStream ToStream()
         {
             BinaryWriter writer = new BinaryWriter(new MemoryStream());
-            byte[] data;
+            byte[] data = null;
 
-            data = ArrayUtils.ToBytes(GetStatByte());
+            byte[][] statByte = null;
+            try
+            {
+                statByte = GetStatByte();
+                data = ArrayUtils.ToBytes(statByte);
+            }
+
+            catch(Exception ex)
+            {
+
+            }
+
+
             writer.Write(data.Length);
             writer.Write(data);
 

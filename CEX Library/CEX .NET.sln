@@ -6,6 +6,10 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CEXEngine", "CEXEngine\CEXEngine.csproj", "{F63F1625-804A-431D-99A7-8D636B0766DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{C2258BA9-5D43-45FC-BF32-250BE5104BBD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FAAEB21A-92B9-4068-8423-75C797A74FA5} = {FAAEB21A-92B9-4068-8423-75C797A74FA5}
+		{60AFF14B-D468-4AD1-AFBE-35EA6B6E8F92} = {60AFF14B-D468-4AD1-AFBE-35EA6B6E8F92}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "Example\Example.csproj", "{0328AD98-CB11-4D7A-A90D-02C6C85183DF}"
 EndProject
@@ -18,9 +22,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTMClient", "DTMClient\DTMC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTMServer", "DTMServer\DTMServer.csproj", "{FAAEB21A-92B9-4068-8423-75C797A74FA5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CEXEngine.NETStandard", "CEXEngine.NETStandard\CEXEngine.NETStandard.csproj", "{35B67F9A-53A1-41CD-9B43-B494064DCCED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CEXEngine.NETStandard", "CEXEngine.NETStandard\CEXEngine.NETStandard.csproj", "{35B67F9A-53A1-41CD-9B43-B494064DCCED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarekTestConsole", "MarekTestConsole\MarekTestConsole.csproj", "{D3E55E3F-FC94-4B04-9C3B-B4C2978AE543}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarekTestConsole", "MarekTestConsole\MarekTestConsole.csproj", "{D3E55E3F-FC94-4B04-9C3B-B4C2978AE543}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

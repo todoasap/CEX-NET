@@ -879,9 +879,25 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 {
                     for (int j = 0; j < _currentRetain[i].Length; j++)
                     {
-                        data = ArrayUtils.ToBytes(_currentRetain[i][j].ToArray());
-                        writer.Write(data.Length);
-                        writer.Write(data);
+                        //MZ@20190704
+                        byte[][] currRetainArr = _currentRetain[i][j].ToArray();
+                        if (currRetainArr.Length > 0)
+                        {
+                            data = ArrayUtils.ToBytes(currRetainArr);
+                            writer.Write(data.Length);
+                            writer.Write(data);
+                        }
+                        else
+                            writer.Write((int)0);
+                        //try
+                        //{
+
+                        //}
+                        //catch(Exception ex)
+                        //{
+
+                        //}
+
                     }
                 }
             }

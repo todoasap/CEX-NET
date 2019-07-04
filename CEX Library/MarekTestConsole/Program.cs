@@ -10,6 +10,9 @@ using VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Encrypt.RLWE;
 using VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Interfaces;
 using VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Encrypt.NTRU;
 using System.Configuration;
+using VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS;
+using Newtonsoft.Json;
+using System.Security.Cryptography;
 
 namespace MarekTestConsole
 {
@@ -139,10 +142,86 @@ namespace MarekTestConsole
             }
         }
 
+        private static void TestSign(GMSSParameters CipherParam)
+        {
+            GMSSKeyGenerator mkgen = new GMSSKeyGenerator(CipherParam);
+            IAsymmetricKeyPair akp = mkgen.GenerateKeyPair();
+            byte[] data = new byte[200];
+            new VTDev.Libraries.CEXEngine.Crypto.Prng.CSPPrng().GetBytes(data);
+
+
+            var currentPrivKey = ((GMSSPrivateKey)akp.PrivateKey); //.NextKey();
+
+            for (int i = 0; i < 2000; i++)
+            {
+                try
+                {
+
+
+                    var test = JsonConvert.SerializeObject(akp);
+
+                    using (GMSSSign sgn = new GMSSSign(CipherParam))
+                    {
+                        // sign the array
+                        sgn.Initialize(akp.PrivateKey);
+                        byte[] code = sgn.Sign(data, 0, data.Length);
+                        // verify the signature
+                        sgn.Initialize(akp.PublicKey);
+                        if (!sgn.Verify(data, 0, data.Length, code))
+                            throw new Exception("RLWESignTest: Sign operation failed!");
+
+                        // get the next available key (private sub-key is used only once)
+                        //////GMSSPrivateKey nk = ((GMSSPrivateKey)akp.PrivateKey).NextKey();
+                        currentPrivKey = currentPrivKey.NextKey(); // ((GMSSPrivateKey)akp.PrivateKey).NextKey(); // currentPrivKey.NextKey();
+
+                        //if (i == 15)
+                        try
+                        {
+                            var keyBytes = currentPrivKey.ToBytes();
+                            using (SHA256Managed sha = new SHA256Managed())
+                            {
+                                var currentPrivKeyHash = Convert.ToBase64String(sha.ComputeHash(keyBytes));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+
+
+
+                        //////var test1 = currentPrivKey.ToBytes();
+
+                        sgn.Initialize(currentPrivKey);
+                        code = sgn.Sign(new MemoryStream(data));
+                        // verify the signature
+                        sgn.Initialize(akp.PublicKey);
+                        if (!sgn.Verify(new MemoryStream(data), code))
+                            throw new Exception("RLWESignTest: Verify test failed!");
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+        }
+
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
 
+
+            // GMSS TEST
+
+            TestSign(GMSSParamSets.FromName(GMSSParamSets.GMSSParamNames.N2P10));
+
+
+
+
+
+            return;
+            // RSM/TSM TEST:
             KeyParams keyParams = null;
 
             byte[] test = Encoding.UTF8.GetBytes("ala ma kotka");

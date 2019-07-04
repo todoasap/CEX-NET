@@ -687,8 +687,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
             // the primary-stage asymmetric ciphers parameter oid
             NTRUParamSets.GetFormatted(NTRUParamSets.NTRUParamNames.CX1931, 0.2),
             // the auth-stage symmetric ciphers description
-            //////new DtmSessionStruct(BlockCiphers.THX, 192, IVSizes.V128, RoundCounts.R32, Digests.Skein256),
-            new DtmSessionStruct(BlockCiphers.Serpent, 32, IVSizes.V128, RoundCounts.R32, Digests.Skein256),
+            //////new DtmSessionStruct(BlockCiphers.TSM, 192, IVSizes.V128, RoundCounts.R32, Digests.Skein256),
+            new DtmSessionStruct(BlockCiphers.Serpent, 32, IVSizes.V128, RoundCounts.R32, Digests.SHA256),
             // the primary-stage symmetric ciphers description
             new DtmSessionStruct(BlockCiphers.RSM, 192, IVSizes.V256, RoundCounts.R42, Digests.Skein512),
             // the random generator used to pad messages
@@ -714,7 +714,7 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.KEX.DTM
             // the maximum delay time before transmitting the symmetric key
             10,
             // the maximum delay time before transmitting a message
-            0);
+            100); //0);
 
 
 
