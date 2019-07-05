@@ -177,11 +177,28 @@ namespace MarekTestConsole
                         //if (i == 15)
                         try
                         {
+                            var test1 = JsonConvert.SerializeObject(currentPrivKey);
                             var keyBytes = currentPrivKey.ToBytes();
-                            using (SHA256Managed sha = new SHA256Managed())
+                            var currentPrivKeyCopy = currentPrivKey.DeepCopy();
+                            currentPrivKey = GMSSPrivateKey.From(keyBytes);
+
+                            //var testXXX = currentPrivKey.NextKey();
+
+                            var test2 = JsonConvert.SerializeObject(currentPrivKeyCopy);
+                            var test3 = JsonConvert.SerializeObject(currentPrivKey);
+
+                            if(test1 != test2 || test2 != test3)
                             {
-                                var currentPrivKeyHash = Convert.ToBase64String(sha.ComputeHash(keyBytes));
+
                             }
+
+                            //currentPrivKey = new GMSSPrivateKey()
+
+                            //var test1 = currentPrivKey.IsUsed;
+                            //using (SHA256Managed sha = new SHA256Managed())
+                            //{
+                            //    var currentPrivKeyHash = Convert.ToBase64String(sha.ComputeHash(keyBytes));
+                            //}
                         }
                         catch (Exception ex)
                         {
