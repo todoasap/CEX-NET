@@ -182,6 +182,7 @@ namespace MarekTestConsole
                             var currentPrivKeyCopy = currentPrivKey.DeepCopy();
                             currentPrivKey = GMSSPrivateKey.From(keyBytes);
 
+
                             //var testXXX = currentPrivKey.NextKey();
 
                             var test2 = JsonConvert.SerializeObject(currentPrivKeyCopy);

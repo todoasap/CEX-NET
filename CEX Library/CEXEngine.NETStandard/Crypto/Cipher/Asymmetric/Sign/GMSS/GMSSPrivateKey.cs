@@ -631,6 +631,79 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     data = reader.ReadBytes(len);
                     _currentRootSig = ArrayUtils.ToArray2x8(data);
                 }
+
+
+                //MZ@20190705
+                len = reader.ReadInt32();
+                data = reader.ReadBytes(len);
+                _numLeafs = ArrayUtils.ToArray32(data);
+
+                len = reader.ReadInt32();
+                data = reader.ReadBytes(len);
+                m_K = ArrayUtils.ToArray32(data);
+
+                len = reader.ReadInt32();
+                data = reader.ReadBytes(len);
+                _otsIndex = ArrayUtils.ToArray32(data);
+
+                len = reader.ReadInt32();
+                data = reader.ReadBytes(len);
+                _minTreehash = ArrayUtils.ToArray32(data);
+
+                len = reader.ReadInt32();
+                data = reader.ReadBytes(len);
+                _heightOfTrees = ArrayUtils.ToArray32(data);
+
+                //////var xxx4 = _msgDigestTrees;
+                //////var xxx5 = _msgDigestType;
+                //////var xxx6 = _nextNextLeaf;
+                //////var xxx7 = _nextNextRoot;
+                //////var xxx8 = _nextRootSig;
+                //////var xxx9 = _numLeafs;
+                //////var xxx10 = _otsIndex;
+                //////var xxx11 = _upperLeaf;
+                //////var xxx12 = _upperTreehashLeaf;
+
+                ////data = ArrayUtils.ToBytes(_numLeafs);
+                ////writer.Write(data.Length);
+                ////writer.Write(data);
+
+                ////data = ArrayUtils.ToBytes(m_K);
+                ////writer.Write(data.Length);
+                ////writer.Write(data);
+
+                ////data = ArrayUtils.ToBytes(_otsIndex);
+                ////writer.Write(data.Length);
+                ////writer.Write(data);
+
+                ////data = ArrayUtils.ToBytes(_minTreehash);
+                ////writer.Write(data.Length);
+                ////writer.Write(data);
+
+                ////data = ArrayUtils.ToBytes(_heightOfTrees);
+                ////writer.Write(data.Length);
+                ////writer.Write(data);
+
+
+                var xxx1 = _gmssRandom;
+                var xxx2 = _heightOfTrees;
+                var xxx3 = _minTreehash;
+                var xxx4 = _msgDigestTrees;
+                var xxx5 = _msgDigestType;
+                var xxx6 = _nextNextLeaf;
+                var xxx7 = _nextNextRoot;
+                var xxx8 = _nextRootSig;
+                var xxx9 = _numLeafs;
+                var xxx10 = _otsIndex;
+                var xxx11 = _upperLeaf;
+                var xxx12 = _upperTreehashLeaf;
+                var xxx13 = m_K;
+
+
+
+
+
+
             }
             catch (Exception ex)
             {
@@ -942,6 +1015,46 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 writer.Write(data.Length);
                 writer.Write(data);
             }
+
+
+            //MZ@20190705
+            data = ArrayUtils.ToBytes(_numLeafs);
+            writer.Write(data.Length);
+            writer.Write(data);
+
+            data = ArrayUtils.ToBytes(m_K);
+            writer.Write(data.Length);
+            writer.Write(data);
+
+            data = ArrayUtils.ToBytes(_otsIndex);
+            writer.Write(data.Length);
+            writer.Write(data);
+
+            data = ArrayUtils.ToBytes(_minTreehash);
+            writer.Write(data.Length);
+            writer.Write(data);
+
+            data = ArrayUtils.ToBytes(_heightOfTrees);
+            writer.Write(data.Length);
+            writer.Write(data);
+
+
+            var xxx1 = _gmssRandom;
+            var xxx2 = _heightOfTrees;
+            var xxx3 = _minTreehash;
+            var xxx4 = _msgDigestTrees;
+            var xxx5 = _msgDigestType;
+            var xxx6 = _nextNextLeaf;
+            var xxx7 = _nextNextRoot;
+            var xxx8 = _nextRootSig;
+            var xxx9 = _numLeafs;
+            var xxx10 = _otsIndex;
+            var xxx11 = _upperLeaf;
+            var xxx12 = _upperTreehashLeaf;
+            var xxx13 = m_K;
+
+
+
 
             writer.BaseStream.Seek(0, SeekOrigin.Begin);
 
