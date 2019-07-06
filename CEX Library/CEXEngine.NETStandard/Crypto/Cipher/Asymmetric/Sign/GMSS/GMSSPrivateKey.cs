@@ -169,8 +169,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
         /// <param name="CurrentRootSig">Array of signatures of the roots of the current subtrees</param>
         /// <param name="ParameterSet">The GMSS Parameterset</param>
         /// <param name="Digest">The digest type</param>
-        internal GMSSPrivateKey(byte[][] CurrentSeed, byte[][] NextNextSeed, byte[][][] CurrentAuthPath, byte[][][] NextAuthPath, Treehash[][] CurrentTreehash, 
-            Treehash[][] NextTreehash, List<byte[]>[] CurrentStack, List<byte[]>[] NextStack, List<byte[]>[][] CurrentRetain, List<byte[]>[][] NextRetain, 
+        internal GMSSPrivateKey(byte[][] CurrentSeed, byte[][] NextNextSeed, byte[][][] CurrentAuthPath, byte[][][] NextAuthPath, Treehash[][] CurrentTreehash,
+            Treehash[][] NextTreehash, List<byte[]>[] CurrentStack, List<byte[]>[] NextStack, List<byte[]>[][] CurrentRetain, List<byte[]>[][] NextRetain,
             byte[][] NextRoot, byte[][] CurrentRootSig, GMSSParameters ParameterSet, Digests Digest)
         :
             this(null, CurrentSeed, NextNextSeed, CurrentAuthPath, NextAuthPath, null, CurrentTreehash, NextTreehash, CurrentStack, NextStack,
@@ -204,7 +204,7 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
         /// <param name="NextRootSig">Array of signatures of the roots of the next subtree (SIG+)</param>
         /// <param name="ParameterSet">The GMSS Parameterset</param>
         /// <param name="Digest">The digest type</param>
-        internal GMSSPrivateKey(int[] Index, byte[][] CurrentSeeds, byte[][] NextNextSeeds, byte[][][] CurrentAuthPaths, byte[][][] NextAuthPaths, byte[][][] Keep, 
+        internal GMSSPrivateKey(int[] Index, byte[][] CurrentSeeds, byte[][] NextNextSeeds, byte[][][] CurrentAuthPaths, byte[][][] NextAuthPaths, byte[][][] Keep,
             Treehash[][] CurrentTreehash, Treehash[][] NextTreehash, List<byte[]>[] CurrentStack, List<byte[]>[] NextStack, List<byte[]>[][] CurrentRetain, List<byte[]>[][] NextRetain,
             GMSSLeaf[] NextNextLeaf, GMSSLeaf[] UpperLeaf, GMSSLeaf[] UpperTreehashLeaf, int[] MinTreehash, byte[][] NextRoot, GMSSRootCalc[] NextNextRoot, byte[][] CurrentRootSig,
             GMSSRootSig[] NextRootSig, GMSSParameters ParameterSet, Digests Digest)
@@ -929,7 +929,7 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     for (int j = 0; j < _currentTreehash[i].Length; j++)
                     {
                         data = _currentTreehash[i][j].ToBytes();
-                        if(data.Length == 0)
+                        if (data.Length == 0)
                         {
                             //MZ@20190706
                         }
@@ -1016,68 +1016,117 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
 
 
 
-            if (false)
+
+            //BUGGG!!! Here on in deserializer
+
+            long spDEBUG1 = 0;
+            long spDEBUG2 = 0;
+
+            int lenDEBUG1 = 0;
+            int lenDEBUG2 = 0;
+
+            using (MemoryStream memStreamDEBUG = new MemoryStream())
+            using (BinaryWriter writerDEBUG = new BinaryWriter(memStreamDEBUG))
+            using (BinaryReader readerDEBUG = new BinaryReader(memStreamDEBUG))
             {
-                // from deserializer!
-                //BUGGG!!! Here on in serializer
-                len = reader.ReadInt32();
-                if (len < 1)
+
+                if (_currentRetain.Length < 1)
                 {
-                    _currentRetain = ArrayUtils.CreateJagged<List<byte[]>[][]>(0, 0);
+                    writerDEBUG.Write((int)0);
                 }
                 else
                 {
-                    len2 = reader.ReadInt32();
-                    _currentRetain = ArrayUtils.CreateJagged<List<byte[]>[][]>(len, len2);
+                    writerDEBUG.Write(_currentRetain.Length);
+                    writerDEBUG.Write(_currentRetain[0].Length);
                     for (int i = 0; i < _currentRetain.Length; i++)
                     {
                         for (int j = 0; j < _currentRetain[i].Length; j++)
                         {
-                            len = reader.ReadInt32();
-                            data = reader.ReadBytes(len);
-                            _currentRetain[i][j] = new List<byte[]>();
-                            _currentRetain[i][j].Add(data);
+                            //MZ@20190704
+                            byte[][] currRetainArr = _currentRetain[i][j].ToArray();
+                            if (currRetainArr.Length > 0)
+                            {
+                                data = ArrayUtils.ToBytes(currRetainArr);
+                                //if(spDEBUG1 == 0)
+                                    
+                                writerDEBUG.Write(data.Length);
+                                writerDEBUG.Write(data);
+
+                                if (data.Length == 32) //MZ
+                                {
+
+                                }
+                                lenDEBUG1 = data.Length;
+                                spDEBUG1 = memStreamDEBUG.Position;
+
+                            }
+                            else
+                                writerDEBUG.Write((int)0);
+                            //try
+                            //{
+
+                            //}
+                            //catch(Exception ex)
+                            //{
+
+                            //}
+
                         }
                     }
                 }
-            }
 
 
-            //BUGGG!!! Here on in deserializer
-            if (_currentRetain.Length < 1)
-            {
-                writer.Write((int)0);
-            }
-            else
-            {
-                writer.Write(_currentRetain.Length);
-                writer.Write(_currentRetain[0].Length);
-                for (int i = 0; i < _currentRetain.Length; i++)
+                
+                // MZ@20190706: writing to main stream:
+                writer.Write(memStreamDEBUG.ToArray());
+
+                memStreamDEBUG.Position = 0;
+
+                // DEBUG - READ TO COMPARE
+                //if (false)
+                //{
+                // from deserializer!
+                //BUGGG!!! Here on in serializer
+                List<byte[]>[][] _currentRetainDEBUG = null;
+                var len = readerDEBUG.ReadInt32();
+                if (len < 1)
                 {
-                    for (int j = 0; j < _currentRetain[i].Length; j++)
+                    _currentRetainDEBUG = ArrayUtils.CreateJagged<List<byte[]>[][]>(0, 0);
+                }
+                else
+                {
+                    var len2 = readerDEBUG.ReadInt32();
+                    _currentRetainDEBUG = ArrayUtils.CreateJagged<List<byte[]>[][]>(len, len2);
+                    for (int i = 0; i < _currentRetainDEBUG.Length; i++)
                     {
-                        //MZ@20190704
-                        byte[][] currRetainArr = _currentRetain[i][j].ToArray();
-                        if (currRetainArr.Length > 0)
+                        for (int j = 0; j < _currentRetainDEBUG[i].Length; j++)
                         {
-                            data = ArrayUtils.ToBytes(currRetainArr);
-                            writer.Write(data.Length);
-                            writer.Write(data);
+                            //if (spDEBUG2 == 0)
+                                
+
+                            len = readerDEBUG.ReadInt32();
+                            data = readerDEBUG.ReadBytes(len);
+                            _currentRetainDEBUG[i][j] = new List<byte[]>();
+                            _currentRetainDEBUG[i][j].Add(data);
+
+                            if(data.Length != 40) //MZ
+                            {
+
+                            }
+                            lenDEBUG2 = data.Length; ;
+                            spDEBUG2 = memStreamDEBUG.Position;
                         }
-                        else
-                            writer.Write((int)0);
-                        //try
-                        //{
-
-                        //}
-                        //catch(Exception ex)
-                        //{
-
-                        //}
-
                     }
                 }
+                //}
+
+
+
+
+
+
             }
+
 
 
 
