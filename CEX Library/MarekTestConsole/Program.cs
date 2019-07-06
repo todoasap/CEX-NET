@@ -195,14 +195,15 @@ namespace MarekTestConsole
                                     var test1 = Convert.ToBase64String(sha.ComputeHash(currentPrivKey.ToBytes()));
                                     var test2 = Convert.ToBase64String(sha.ComputeHash(currentPrivKeyRegen.ToBytes()));
 
-                                    var test1b = ByteArrayToString(currentPrivKey.ToBytes());
-                                    var test2b = ByteArrayToString(currentPrivKeyRegen.ToBytes());
+
 
                                     var iAmI = i;
 
                                     if(test1 != test2)
                                     {
-
+                                        GMSSPrivateKey.DEBUG_HIT_NOW = true;
+                                        var test1b = ByteArrayToString(currentPrivKey.ToBytes());
+                                        var test2b = ByteArrayToString(currentPrivKeyRegen.ToBytes());
                                     }
                                     else
                                     {

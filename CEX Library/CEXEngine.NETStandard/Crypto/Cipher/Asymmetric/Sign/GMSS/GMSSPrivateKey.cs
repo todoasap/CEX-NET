@@ -443,6 +443,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 data = reader.ReadBytes(len);
                 _gmssPS = new GMSSParameters(data);
 
+
+                reader.ReadBytes(16); // TEST TAG MZ@20190706
+
+
                 len = reader.ReadInt32();
                 if (len < 1)
                 {
@@ -453,6 +457,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     data = reader.ReadBytes(len);
                     _currentSeeds = ArrayUtils.ToArray2x8(data);
                 }
+
+
+                reader.ReadBytes(16); // TEST TAG MZ@20190706
+
 
                 len = reader.ReadInt32();
                 if (len < 1)
@@ -465,6 +473,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     _nextNextSeeds = ArrayUtils.ToArray2x8(data);
                 }
 
+
+                reader.ReadBytes(16); // TEST TAG MZ@20190706
+
+
                 len = reader.ReadInt32();
                 if (len < 1)
                 {
@@ -475,6 +487,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     data = reader.ReadBytes(len);
                     _currentAuthPaths = ArrayUtils.ToArray3x8(data);
                 }
+
+
+                reader.ReadBytes(16); // TEST TAG MZ@20190706
+
 
                 len = reader.ReadInt32();
                 if (len < 1)
@@ -487,6 +503,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     _nextAuthPaths = ArrayUtils.ToArray3x8(data);
                 }
 
+
+                reader.ReadBytes(16); // TEST TAG MZ@20190706
+
+
                 len = reader.ReadInt32();
                 if (len < 1)
                 {
@@ -497,6 +517,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     data = reader.ReadBytes(len);
                     _keep = ArrayUtils.ToArray3x8(data);
                 }
+
+                reader.ReadBytes(16); // TEST TAG MZ@20190706
 
                 len = reader.ReadInt32();
                 if (len < 1)
@@ -518,6 +540,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     }
                 }
 
+                reader.ReadBytes(16); // TEST TAG MZ@20190706
+
                 len = reader.ReadInt32();
                 if (len < 1)
                 {
@@ -537,6 +561,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                         }
                     }
                 }
+
+                reader.ReadBytes(16); // TEST TAG MZ@20190706
 
                 len = reader.ReadInt32();
                 if (len < 1)
@@ -595,6 +621,13 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     {
                         for (int j = 0; j < _currentRetain[i].Length; j++)
                         {
+                            //////MZ@20190706 quickfix - reading 2 int32s to skip the 2 length values
+                            ///// This seems to be a bug in the original code
+                            ///// "data", including lengsths, is set as target _currentRetain variable, which is wrong (should not include the lenghts)
+                            /////
+                            reader.ReadInt32();
+                            reader.ReadInt32();
+
                             len = reader.ReadInt32();
                             data = reader.ReadBytes(len);
                             _currentRetain[i][j] = new List<byte[]>();
@@ -602,11 +635,6 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                         }
                     }
                 }
-
-
-
-
-
 
 
                 reader.ReadBytes(16); // TEST TAG MZ@20190706
@@ -625,6 +653,15 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     {
                         for (int j = 0; j < _nextRetain[i].Length; j++)
                         {
+
+                            //////MZ@20190706 quickfix - reading 2 int32s to skip the 2 length values
+                            ///// This seems to be a bug in the original code
+                            ///// "data", including lengsths, is set as target _currentRetain variable, which is wrong (should not include the lenghts)
+                            /////
+                            reader.ReadInt32();
+                            reader.ReadInt32();
+
+
                             len = reader.ReadInt32();
                             data = reader.ReadBytes(len);
                             _nextRetain[i][j] = new List<byte[]>();
@@ -843,6 +880,9 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
             return ToStream().ToArray();
         }
 
+
+        public static bool DEBUG_HIT_NOW = false;
+
         /// <summary>
         /// Converts the GMSSPrivateKey to an encoded MemoryStream
         /// </summary>
@@ -861,6 +901,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
             writer.Write(data.Length);
             writer.Write(data);
 
+            ////MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 1, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
+
             if (_currentSeeds.Length < 1)
             {
                 writer.Write((int)0);
@@ -871,6 +915,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 writer.Write(data.Length);
                 writer.Write(data);
             }
+
+            ////MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 2, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
 
             if (_nextNextSeeds.Length < 1)
             {
@@ -883,6 +931,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 writer.Write(data);
             }
 
+            ////MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 3, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
+
             if (_currentAuthPaths.Length < 1)
             {
                 writer.Write((int)0);
@@ -893,6 +945,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 writer.Write(data.Length);
                 writer.Write(data);
             }
+
+            ////MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 4, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
 
             if (_nextAuthPaths.Length < 1)
             {
@@ -905,6 +961,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 writer.Write(data);
             }
 
+            ////MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 5, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
+
             if (_keep.Length < 1)
             {
                 writer.Write((int)0);
@@ -916,28 +976,102 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 writer.Write(data);
             }
 
-            if (_currentTreehash.Length < 1)
+            ////MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 6, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
+
+
+
+
+            //MZ@20190706 BUG #2 IS HERE!!!
+            Treehash[][] _currentTreehashDEBUG = null;
+            long dataLenDEBUG1 = 0;
+            long dataLenDEBUG2 = 0;
+
+            using (MemoryStream memStreamDEBUG = new MemoryStream())
+            using (BinaryWriter writerDEBUG = new BinaryWriter(memStreamDEBUG))
+            using (BinaryReader readerDEBUG = new BinaryReader(memStreamDEBUG))
             {
-                writer.Write((int)0);
-            }
-            else
-            {
-                writer.Write(_currentTreehash.Length);
-                writer.Write(_currentTreehash[0].Length);
-                for (int i = 0; i < _currentTreehash.Length; i++)
+                if (_currentTreehash.Length < 1)
                 {
-                    for (int j = 0; j < _currentTreehash[i].Length; j++)
+                    writerDEBUG.Write((int)0);
+                }
+                else
+                {
+                    dataLenDEBUG1 = 8;
+
+                    writerDEBUG.Write(_currentTreehash.Length);
+                    writerDEBUG.Write(_currentTreehash[0].Length);
+                    for (int i = 0; i < _currentTreehash.Length; i++)
                     {
-                        data = _currentTreehash[i][j].ToBytes();
-                        if (data.Length == 0)
+                        for (int j = 0; j < _currentTreehash[i].Length; j++)
                         {
-                            //MZ@20190706
+                            data = _currentTreehash[i][j].ToBytes();
+                            if (data.Length == 0)
+                            {
+                                //MZ@20190706
+                            }
+                            dataLenDEBUG1 += data.Length + 4;
+                            writerDEBUG.Write(data.Length);
+                            writerDEBUG.Write(data);
                         }
-                        writer.Write(data.Length);
-                        writer.Write(data);
                     }
                 }
+
+
+
+                // MZ@20190706: writing to main stream:
+                writer.Write(memStreamDEBUG.ToArray());
+
+                memStreamDEBUG.Position = 0;
+
+
+
+
+                var len = readerDEBUG.ReadInt32();
+                if (len < 1)
+                {
+                    _currentTreehashDEBUG = ArrayUtils.CreateJagged<Treehash[][]>(0, 0);
+                }
+                else
+                {
+
+                    var len2 = readerDEBUG.ReadInt32();
+
+
+                    dataLenDEBUG2 = len2;
+
+                    _currentTreehashDEBUG = ArrayUtils.CreateJagged<Treehash[][]>(len, len2);
+                    for (int i = 0; i < _currentTreehashDEBUG.Length; i++)
+                    {
+                        for (int j = 0; j < _currentTreehashDEBUG[i].Length; j++)
+                        {
+
+                            //////MZ@20190706 quickfix - reading 2 int32s to skip the 2 length values
+                            ////var dataLengthL1 = reader.ReadInt32();
+                            ////var dataLengthL2 = reader.ReadInt32();
+
+                            len = readerDEBUG.ReadInt32();
+                            data = readerDEBUG.ReadBytes(len);
+
+                            dataLenDEBUG2 += 4 + len;
+
+                            _currentTreehashDEBUG[i][j] = new Treehash(GetDigest(_gmssPS.DigestEngine), data);
+                        }
+                    }
+                }
+
+                if(DEBUG_HIT_NOW)
+                {
+
+                }
+
+
             }
+
+            ////MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 7, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
 
             if (_nextTreehash.Length < 1)
             {
@@ -957,6 +1091,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     }
                 }
             }
+
+            ////MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 8, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
 
             if (_currentStack.Length < 1)
             {
@@ -981,8 +1119,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
             }
 
 
-            //MZ@20190706 TEST TAG
-            writer.Write(new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+            ////MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 9, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
 
 
             if (_nextStack.Length < 1)
@@ -1008,8 +1146,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
             }
 
 
-            //MZ@20190706 TEST TAG
-            writer.Write(new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+            ////MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 10, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
 
 
 
@@ -1019,116 +1157,131 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
 
             //BUGGG!!! Here on in deserializer
 
-            long spDEBUG1 = 0;
-            long spDEBUG2 = 0;
+            //////long spDEBUG1 = 0;
+            //////long spDEBUG2 = 0;
+            //////long spDEBUG12 =0;
+            //////long spDEBUG22 = 0;
 
-            int lenDEBUG1 = 0;
-            int lenDEBUG2 = 0;
+            //////int lenDEBUG1 = 0;
+            //////int lenDEBUG2 = 0;
 
-            using (MemoryStream memStreamDEBUG = new MemoryStream())
-            using (BinaryWriter writerDEBUG = new BinaryWriter(memStreamDEBUG))
-            using (BinaryReader readerDEBUG = new BinaryReader(memStreamDEBUG))
+            //////byte[][] currRetainArrDEBUG = null;
+
+            //////string strDEBUG1 = null;
+            //////string strDEBUG2 = null; ;
+
+            //////using (MemoryStream memStreamDEBUG = new MemoryStream())
+            //////using (BinaryWriter writerDEBUG = new BinaryWriter(memStreamDEBUG))
+            //////using (BinaryReader readerDEBUG = new BinaryReader(memStreamDEBUG))
+            //////{
+
+            if (_currentRetain.Length < 1)
             {
-
-                if (_currentRetain.Length < 1)
+                writer.Write((int)0);
+            }
+            else
+            {
+                writer.Write(_currentRetain.Length);
+                writer.Write(_currentRetain[0].Length);
+                for (int i = 0; i < _currentRetain.Length; i++)
                 {
-                    writerDEBUG.Write((int)0);
-                }
-                else
-                {
-                    writerDEBUG.Write(_currentRetain.Length);
-                    writerDEBUG.Write(_currentRetain[0].Length);
-                    for (int i = 0; i < _currentRetain.Length; i++)
+                    for (int j = 0; j < _currentRetain[i].Length; j++)
                     {
-                        for (int j = 0; j < _currentRetain[i].Length; j++)
+                        //MZ@20190704
+                        byte[][] currRetainArr = _currentRetain[i][j].ToArray();
+                        if (currRetainArr.Length > 0)
                         {
-                            //MZ@20190704
-                            byte[][] currRetainArr = _currentRetain[i][j].ToArray();
-                            if (currRetainArr.Length > 0)
-                            {
-                                data = ArrayUtils.ToBytes(currRetainArr);
-                                //if(spDEBUG1 == 0)
-                                    
-                                writerDEBUG.Write(data.Length);
-                                writerDEBUG.Write(data);
+                            //////currRetainArrDEBUG = currRetainArr;
+                            data = ArrayUtils.ToBytes(currRetainArr);
+                            //if(spDEBUG1 == 0)
 
-                                if (data.Length == 32) //MZ
-                                {
+                            //////spDEBUG1 = memStreamDEBUG.Position;
 
-                                }
-                                lenDEBUG1 = data.Length;
-                                spDEBUG1 = memStreamDEBUG.Position;
+                            writer.Write(data.Length);
+                            //////spDEBUG12 = memStreamDEBUG.Position; ;
+                            writer.Write(data);
 
-                            }
-                            else
-                                writerDEBUG.Write((int)0);
-                            //try
-                            //{
+                            //////strDEBUG1 = BitConverter.ToString(data).Replace("-", "");
 
-                            //}
-                            //catch(Exception ex)
-                            //{
-
-                            //}
-
-                        }
-                    }
-                }
-
-
-                
-                // MZ@20190706: writing to main stream:
-                writer.Write(memStreamDEBUG.ToArray());
-
-                memStreamDEBUG.Position = 0;
-
-                // DEBUG - READ TO COMPARE
-                //if (false)
-                //{
-                // from deserializer!
-                //BUGGG!!! Here on in serializer
-                List<byte[]>[][] _currentRetainDEBUG = null;
-                var len = readerDEBUG.ReadInt32();
-                if (len < 1)
-                {
-                    _currentRetainDEBUG = ArrayUtils.CreateJagged<List<byte[]>[][]>(0, 0);
-                }
-                else
-                {
-                    var len2 = readerDEBUG.ReadInt32();
-                    _currentRetainDEBUG = ArrayUtils.CreateJagged<List<byte[]>[][]>(len, len2);
-                    for (int i = 0; i < _currentRetainDEBUG.Length; i++)
-                    {
-                        for (int j = 0; j < _currentRetainDEBUG[i].Length; j++)
-                        {
-                            //if (spDEBUG2 == 0)
-                                
-
-                            len = readerDEBUG.ReadInt32();
-                            data = readerDEBUG.ReadBytes(len);
-                            _currentRetainDEBUG[i][j] = new List<byte[]>();
-                            _currentRetainDEBUG[i][j].Add(data);
-
-                            if(data.Length != 40) //MZ
+                            if (data.Length == 32) //MZ
                             {
 
                             }
-                            lenDEBUG2 = data.Length; ;
-                            spDEBUG2 = memStreamDEBUG.Position;
+                            //////lenDEBUG1 = data.Length;
+
                         }
+                        else
+                            writer.Write((int)0);
+                        //try
+                        //{
+
+                        //}
+                        //catch(Exception ex)
+                        //{
+
+                        //}
+
                     }
                 }
-                //}
-
-
-
-
-
-
             }
 
 
 
+            //////    // MZ@20190706: writing to main stream:
+            //////    writer.Write(memStreamDEBUG.ToArray());
+
+            //////    memStreamDEBUG.Position = 0;
+
+            //////    // DEBUG - READ TO COMPARE
+            //////    //if (false)
+            //////    //{
+            //////    // from deserializer!
+            //////    //BUGGG!!! Here on in serializer
+            //////    List<byte[]>[][] _currentRetainDEBUG = null;
+            //////    var len = readerDEBUG.ReadInt32();
+            //////    if (len < 1)
+            //////    {
+            //////        _currentRetainDEBUG = ArrayUtils.CreateJagged<List<byte[]>[][]>(0, 0);
+            //////    }
+            //////    else
+            //////    {
+            //////        var len2 = readerDEBUG.ReadInt32();
+            //////        _currentRetainDEBUG = ArrayUtils.CreateJagged<List<byte[]>[][]>(len, len2);
+            //////        for (int i = 0; i < _currentRetainDEBUG.Length; i++)
+            //////        {
+            //////            for (int j = 0; j < _currentRetainDEBUG[i].Length; j++)
+            //////            {
+            //////                //if (spDEBUG2 == 0)
+
+            //////                spDEBUG2 = memStreamDEBUG.Position;
+
+            //////                len = readerDEBUG.ReadInt32();
+            //////                spDEBUG22 = memStreamDEBUG.Position; ;
+
+            //////                var dataLengthL1 = readerDEBUG.ReadInt32();
+            //////                var dataLengthL2 = readerDEBUG.ReadInt32();
+            //////                data = readerDEBUG.ReadBytes(len);
+            //////                _currentRetainDEBUG[i][j] = new List<byte[]>();
+            //////                _currentRetainDEBUG[i][j].Add(data);
+
+            //////                strDEBUG2 = BitConverter.ToString(data).Replace("-", "");
+
+            //////                if (data.Length != 40) //MZ
+            //////                {
+
+            //////                }
+            //////                lenDEBUG2 = data.Length; ;
+            //////            }
+            //////        }
+            //////    }
+            //////    //}
+
+
+
+            //////    var finalDEBUG = ArrayUtils.ToBytes(currRetainArrDEBUG);
+
+
+            //////}
 
 
 
@@ -1143,8 +1296,11 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
 
 
 
-            //MZ@20190706 TEST TAG
-            writer.Write(new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
+
+
+            ////MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 11, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
 
 
             if (_nextRetain.Length < 1)
@@ -1167,8 +1323,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
             }
 
 
-            //MZ@20190706 TEST TAG
-            writer.Write(new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+            ////MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 12, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
 
 
             if (_nextRoot.Length < 1)
@@ -1183,8 +1339,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
             }
 
 
-            //MZ@20190706 TEST TAG
-            writer.Write(new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+            ////MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 13, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
 
 
             if (_currentRootSig.Length < 1)
