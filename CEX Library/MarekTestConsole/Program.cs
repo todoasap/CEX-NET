@@ -142,6 +142,11 @@ namespace MarekTestConsole
             }
         }
 
+        public static string ByteArrayToString(byte[] ba)
+        {
+            return BitConverter.ToString(ba).Replace("-", "");
+        }
+
         private static void TestSign(GMSSParameters CipherParam)
         {
             GMSSKeyGenerator mkgen = new GMSSKeyGenerator(CipherParam);
@@ -158,40 +163,65 @@ namespace MarekTestConsole
                 {
 
 
-                    var test = JsonConvert.SerializeObject(akp);
+                    //var test = JsonConvert.SerializeObject(akp);
 
                     using (GMSSSign sgn = new GMSSSign(CipherParam))
                     {
-                        // sign the array
-                        sgn.Initialize(akp.PrivateKey);
-                        byte[] code = sgn.Sign(data, 0, data.Length);
-                        // verify the signature
-                        sgn.Initialize(akp.PublicKey);
-                        if (!sgn.Verify(data, 0, data.Length, code))
-                            throw new Exception("RLWESignTest: Sign operation failed!");
-
-                        // get the next available key (private sub-key is used only once)
-                        //////GMSSPrivateKey nk = ((GMSSPrivateKey)akp.PrivateKey).NextKey();
-                        currentPrivKey = currentPrivKey.NextKey(); // ((GMSSPrivateKey)akp.PrivateKey).NextKey(); // currentPrivKey.NextKey();
+                        //////// sign the array
+                        //////sgn.Initialize(akp.PrivateKey);
+                        //////byte[] code = sgn.Sign(data, 0, data.Length);
+                        //////// verify the signature
+                        //////sgn.Initialize(akp.PublicKey);
+                        //////if (!sgn.Verify(data, 0, data.Length, code))
+                        //////    throw new Exception("RLWESignTest: Sign operation failed!");
 
                         //if (i == 15)
                         try
                         {
-                            var test1 = JsonConvert.SerializeObject(currentPrivKey);
-                            var keyBytes = currentPrivKey.ToBytes();
-                            var currentPrivKeyCopy = currentPrivKey.DeepCopy();
-                            currentPrivKey = GMSSPrivateKey.From(keyBytes);
+                            //var test1 = JsonConvert.SerializeObject(currentPrivKey);
+                            //var keyBytes = currentPrivKey.ToBytes();
+                            //var currentPrivKeyCopy = currentPrivKey.DeepCopy();
 
 
+                            // private key serialization test
+                            //if (i == 19)
+                            //    currentPrivKey.DebugGetTreehashes("before");
+                            var privKeySerialized = currentPrivKey.ToBytes();
+                            var currentPrivKeyRegen = GMSSPrivateKey.From(privKeySerialized);
+                            //if (i == 19)
+                            {
+                                using (SHA512Managed sha = new SHA512Managed())
+                                {
+                                    var test1 = Convert.ToBase64String(sha.ComputeHash(currentPrivKey.ToBytes()));
+                                    var test2 = Convert.ToBase64String(sha.ComputeHash(currentPrivKeyRegen.ToBytes()));
+
+                                    var test1b = ByteArrayToString(currentPrivKey.ToBytes());
+                                    var test2b = ByteArrayToString(currentPrivKeyRegen.ToBytes());
+
+                                    var iAmI = i;
+
+                                    if(test1 != test2)
+                                    {
+
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                }
+                            }
+                            //    currentPrivKey.DebugGetTreehashes("after");
+                            //var xxx = 1;
+                            currentPrivKey = currentPrivKeyRegen;
                             //var testXXX = currentPrivKey.NextKey();
 
-                            var test2 = JsonConvert.SerializeObject(currentPrivKeyCopy);
-                            var test3 = JsonConvert.SerializeObject(currentPrivKey);
+                            //var test2 = JsonConvert.SerializeObject(currentPrivKeyCopy);
+                            //var test3 = JsonConvert.SerializeObject(currentPrivKey);
 
-                            if(test1 != test2 || test2 != test3)
-                            {
+                            //if(test1 != test2 || test2 != test3)
+                            //{
 
-                            }
+                            //}
 
                             //currentPrivKey = new GMSSPrivateKey()
 
@@ -203,7 +233,7 @@ namespace MarekTestConsole
                         }
                         catch (Exception ex)
                         {
-
+                            throw ex;
                         }
 
 
@@ -211,16 +241,44 @@ namespace MarekTestConsole
                         //////var test1 = currentPrivKey.ToBytes();
 
                         sgn.Initialize(currentPrivKey);
-                        code = sgn.Sign(new MemoryStream(data));
+                        var code = sgn.Sign(new MemoryStream(data));
+
+
+
+
+                        // public key serialization test:
+                        var pubKeySerialized = akp.PublicKey.ToBytes();
+                        var pubKeyDeserialized = GMSSPublicKey.From(pubKeySerialized);
+
+
+                        //////if (i == 19)
+                        //////{
+
+                        //////}
+
                         // verify the signature
-                        sgn.Initialize(akp.PublicKey);
+                        sgn.Initialize(pubKeyDeserialized);
                         if (!sgn.Verify(new MemoryStream(data), code))
                             throw new Exception("RLWESignTest: Verify test failed!");
+
+
+                        try
+                        {
+                            // get the next available key (private sub-key is used only once)
+                            //////GMSSPrivateKey nk = ((GMSSPrivateKey)akp.PrivateKey).NextKey();
+                            currentPrivKey = currentPrivKey.NextKey(); // ((GMSSPrivateKey)akp.PrivateKey).NextKey(); // currentPrivKey.NextKey();
+
+                        }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+
                     }
                 }
                 catch (Exception ex)
                 {
-
+                    throw ex;
                 }
             }
         }

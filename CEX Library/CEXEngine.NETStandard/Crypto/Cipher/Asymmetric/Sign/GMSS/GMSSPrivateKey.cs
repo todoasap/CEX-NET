@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Interfaces;
 using VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmetic;
 using VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Utility;
@@ -418,7 +419,7 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
         }
 
         /// <summary>
-        /// Reconstructs a public key from its <c>byte</c> array representation.
+        /// Reconstructs a private key from its <c>byte</c> array representation.
         /// </summary>
         /// 
         /// <param name="KeyStream">An input stream containing an encoded key</param>
@@ -428,6 +429,7 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
         {
             try
             {
+
                 BinaryReader reader = new BinaryReader(KeyStream);
                 int len;
                 int len2;
@@ -552,6 +554,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     }
                 }
 
+
+                reader.ReadBytes(16); // TEST TAG MZ@20190706
+
+
                 len = reader.ReadInt32();
                 if (len < 1)
                 {
@@ -568,6 +574,14 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     }
                 }
 
+
+                reader.ReadBytes(16); // TEST TAG MZ@20190706
+
+
+
+
+
+                //BUGGG!!! Here on in serializer
                 len = reader.ReadInt32();
                 if (len < 1)
                 {
@@ -588,6 +602,15 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                         }
                     }
                 }
+
+
+
+
+
+
+
+                reader.ReadBytes(16); // TEST TAG MZ@20190706
+
 
                 len = reader.ReadInt32();
                 if (len < 1)
@@ -610,6 +633,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     }
                 }
 
+                reader.ReadBytes(16); // TEST TAG MZ@20190706
+
                 len = reader.ReadInt32();
                 if (len < 1)
                 {
@@ -620,6 +645,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     data = reader.ReadBytes(len);
                     _nextRoot = ArrayUtils.ToArray2x8(data);
                 }
+
+                reader.ReadBytes(16); // TEST TAG MZ@20190706
 
                 len = reader.ReadInt32();
                 if (len < 1)
@@ -633,7 +660,7 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 }
 
 
-                //MZ@20190705
+                //MZ@20190705.START - Added fnctionality below
                 len = reader.ReadInt32();
                 data = reader.ReadBytes(len);
                 _numLeafs = ArrayUtils.ToArray32(data);
@@ -653,6 +680,26 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 len = reader.ReadInt32();
                 data = reader.ReadBytes(len);
                 _heightOfTrees = ArrayUtils.ToArray32(data);
+
+                // "standard" elements init:
+                _msgDigestType = _gmssPS.DigestEngine;
+                // construct message digest
+                _msgDigestTrees = GetDigest(_msgDigestType);
+                _mdLength = _msgDigestTrees.DigestSize;
+                // Parameter
+                _otsIndex = _gmssPS.WinternitzParameter;
+                m_K = _gmssPS.K;
+                _heightOfTrees = _gmssPS.HeightOfTrees;
+                // initialize numLayer
+                _numLayer = _gmssPS.NumLayers;
+
+                // construct PRNG
+                _gmssRandom = new GMSSRandom(_msgDigestTrees);
+
+
+                ////var xxxxx1 = _currentTreehash;
+                ////var xxxxx2 = _nextTreehash;
+
 
                 //////var xxx4 = _msgDigestTrees;
                 //////var xxx5 = _msgDigestType;
@@ -700,7 +747,7 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 var xxx13 = m_K;
 
 
-
+                //MZ.END
 
 
 
@@ -709,6 +756,17 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
             {
                 throw new CryptoAsymmetricException("GMSSPrivateKey:CTor", "The GMSSPrivateKey could not be loaded!", ex);
             }
+        }
+
+        public void DebugGetTreehashes(string tag)
+        {
+            var x = _currentTreehash;
+            var y = _nextTreehash;
+
+            //var xb = x
+
+            //_currentTreehash.
+            //return new Tuple<Treehash[][], Treehash[][]>(_currentTreehash, _nextTreehash);
         }
 
         /// <summary>
@@ -871,6 +929,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     for (int j = 0; j < _currentTreehash[i].Length; j++)
                     {
                         data = _currentTreehash[i][j].ToBytes();
+                        if(data.Length == 0)
+                        {
+                            //MZ@20190706
+                        }
                         writer.Write(data.Length);
                         writer.Write(data);
                     }
@@ -918,6 +980,11 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 }
             }
 
+
+            //MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
+
             if (_nextStack.Length < 1)
             {
                 writer.Write((int)0);
@@ -940,6 +1007,43 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 }
             }
 
+
+            //MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
+
+
+
+
+
+            if (false)
+            {
+                // from deserializer!
+                //BUGGG!!! Here on in serializer
+                len = reader.ReadInt32();
+                if (len < 1)
+                {
+                    _currentRetain = ArrayUtils.CreateJagged<List<byte[]>[][]>(0, 0);
+                }
+                else
+                {
+                    len2 = reader.ReadInt32();
+                    _currentRetain = ArrayUtils.CreateJagged<List<byte[]>[][]>(len, len2);
+                    for (int i = 0; i < _currentRetain.Length; i++)
+                    {
+                        for (int j = 0; j < _currentRetain[i].Length; j++)
+                        {
+                            len = reader.ReadInt32();
+                            data = reader.ReadBytes(len);
+                            _currentRetain[i][j] = new List<byte[]>();
+                            _currentRetain[i][j].Add(data);
+                        }
+                    }
+                }
+            }
+
+
+            //BUGGG!!! Here on in deserializer
             if (_currentRetain.Length < 1)
             {
                 writer.Write((int)0);
@@ -975,6 +1079,25 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 }
             }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            //MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
+
             if (_nextRetain.Length < 1)
             {
                 writer.Write((int)0);
@@ -994,6 +1117,11 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 }
             }
 
+
+            //MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
+
             if (_nextRoot.Length < 1)
             {
                 writer.Write((int)0);
@@ -1004,6 +1132,11 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                 writer.Write(data.Length);
                 writer.Write(data);
             }
+
+
+            //MZ@20190706 TEST TAG
+            writer.Write(new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 });
+
 
             if (_currentRootSig.Length < 1)
             {
@@ -1017,7 +1150,7 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
             }
 
 
-            //MZ@20190705
+            ////////MZ@20190705
             data = ArrayUtils.ToBytes(_numLeafs);
             writer.Write(data.Length);
             writer.Write(data);
@@ -1037,6 +1170,9 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
             data = ArrayUtils.ToBytes(_heightOfTrees);
             writer.Write(data.Length);
             writer.Write(data);
+
+
+
 
 
             var xxx1 = _gmssRandom;

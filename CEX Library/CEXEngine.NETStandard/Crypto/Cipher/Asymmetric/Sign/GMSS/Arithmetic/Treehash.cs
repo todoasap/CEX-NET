@@ -223,7 +223,18 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmeti
             _firstNode = null;
             _firstNodeHeight = -1;
             m_isInitialized = true;
-            Array.Copy(_seedNext, 0, _seedActive, 0, _msgDigestTree.DigestSize);
+
+            //MZ@20190706
+            try
+            {
+                Array.Copy(_seedNext, 0, _seedActive, 0, _msgDigestTree.DigestSize);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+
+            
         }
 
         /// <summary>
