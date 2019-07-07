@@ -520,6 +520,7 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
 
                 reader.ReadBytes(16); // TEST TAG MZ@20190706
 
+                // MZ@20190707 Newest bug here!
                 len = reader.ReadInt32();
                 if (len < 1)
                 {
@@ -539,6 +540,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                         }
                     }
                 }
+
+                _currentTreehash = _currentTreehashDEBUG_SAV; // just restoring from mem to see if it works
 
                 reader.ReadBytes(16); // TEST TAG MZ@20190706
 
@@ -625,13 +628,21 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                             ///// This seems to be a bug in the original code
                             ///// "data", including lengsths, is set as target _currentRetain variable, which is wrong (should not include the lenghts)
                             /////
-                            reader.ReadInt32();
-                            reader.ReadInt32();
+                            var dummy1 = reader.ReadInt32();
 
-                            len = reader.ReadInt32();
-                            data = reader.ReadBytes(len);
                             _currentRetain[i][j] = new List<byte[]>();
-                            _currentRetain[i][j].Add(data);
+
+                            if (dummy1 > 0)
+                            {
+                                var dummy2 = reader.ReadInt32();
+                                len = reader.ReadInt32();
+                                data = reader.ReadBytes(len);
+                                _currentRetain[i][j].Add(data);
+                            }
+                            else
+                            {
+
+                            }
                         }
                     }
                 }
@@ -658,14 +669,20 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                             ///// This seems to be a bug in the original code
                             ///// "data", including lengsths, is set as target _currentRetain variable, which is wrong (should not include the lenghts)
                             /////
-                            reader.ReadInt32();
-                            reader.ReadInt32();
+                            var dummy1 = reader.ReadInt32();
 
-
-                            len = reader.ReadInt32();
-                            data = reader.ReadBytes(len);
                             _nextRetain[i][j] = new List<byte[]>();
-                            _nextRetain[i][j].Add(data);
+                            if (dummy1 > 0)
+                            {
+                                var dummy2 = reader.ReadInt32();
+                                len = reader.ReadInt32();
+                                data = reader.ReadBytes(len);
+                                _nextRetain[i][j].Add(data);
+                            }
+                            else
+                            {
+
+                            }
                         }
                     }
                 }
@@ -881,7 +898,9 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
         }
 
 
+        //MZ@20190707
         public static bool DEBUG_HIT_NOW = false;
+        private static Treehash[][] _currentTreehashDEBUG_SAV = null;
 
         /// <summary>
         /// Converts the GMSSPrivateKey to an encoded MemoryStream
@@ -890,6 +909,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
         /// <returns>The Private Key encoded as a MemoryStream</returns>
         public MemoryStream ToStream()
         {
+            Treehash.DEBUG_HIT_NOW = false;
+
             BinaryWriter writer = new BinaryWriter(new MemoryStream());
             byte[] data;
 
@@ -988,6 +1009,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
             long dataLenDEBUG1 = 0;
             long dataLenDEBUG2 = 0;
 
+            _currentTreehashDEBUG_SAV = _currentTreehash; // Just saving in mem to see if it works
+
             using (MemoryStream memStreamDEBUG = new MemoryStream())
             using (BinaryWriter writerDEBUG = new BinaryWriter(memStreamDEBUG))
             using (BinaryReader readerDEBUG = new BinaryReader(memStreamDEBUG))
@@ -1006,6 +1029,13 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
                     {
                         for (int j = 0; j < _currentTreehash[i].Length; j++)
                         {
+                            if (DEBUG_HIT_NOW && i == 3)
+                            {
+                                Treehash.DEBUG_HIT_NOW = true;
+                            }
+                            else
+                                Treehash.DEBUG_HIT_NOW = false;
+
                             data = _currentTreehash[i][j].ToBytes();
                             if (data.Length == 0)
                             {

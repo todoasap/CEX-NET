@@ -202,6 +202,7 @@ namespace MarekTestConsole
                                     if(test1 != test2)
                                     {
                                         GMSSPrivateKey.DEBUG_HIT_NOW = true;
+                                        
                                         var test1b = ByteArrayToString(currentPrivKey.ToBytes());
                                         var test2b = ByteArrayToString(currentPrivKeyRegen.ToBytes());
                                     }

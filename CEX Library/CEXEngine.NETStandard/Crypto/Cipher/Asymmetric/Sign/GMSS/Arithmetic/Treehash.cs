@@ -106,6 +106,17 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmeti
             len = reader.ReadInt32();
             data = reader.ReadBytes(len);
             byte[][] statByte = ArrayUtils.ToArray2x8(data);
+
+            //MZ@20190707
+            if(
+                statByte[0] == null || statByte[0].Length != 32
+                || statByte[1] == null || statByte[1].Length != 32
+                || statByte[2] == null || statByte[2].Length != 32
+            )
+            {
+
+            }
+
             len = reader.ReadInt32();
             data = reader.ReadBytes(len);
             int[] statInt = ArrayUtils.ToArray32(data);
@@ -393,6 +404,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmeti
             return ToStream().ToArray();
         }
 
+        public static bool DEBUG_HIT_NOW = false;
+
         /// <summary>
         /// Converts the Treehash to an encoded MemoryStream
         /// </summary>
@@ -402,6 +415,11 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmeti
         {
             BinaryWriter writer = new BinaryWriter(new MemoryStream());
             byte[] data = null;
+
+            if(DEBUG_HIT_NOW)
+            {
+
+            }
 
             byte[][] statByte = null;
             try
@@ -419,10 +437,19 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmeti
             writer.Write(data.Length);
             writer.Write(data);
 
-            data = ArrayUtils.ToBytes(GetStatInt());
+            var statInt = GetStatInt(); //MZ@20190707
+
+            data = ArrayUtils.ToBytes(statInt);
             writer.Write(data.Length);
             writer.Write(data);
             writer.BaseStream.Seek(0, SeekOrigin.Begin);
+
+            var debugTest = ((MemoryStream)writer.BaseStream).Length;
+
+            if (GMSSPrivateKey.DEBUG_HIT_NOW)
+            {
+
+            }
 
             return (MemoryStream)writer.BaseStream;
         }
