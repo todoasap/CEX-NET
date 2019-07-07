@@ -116,6 +116,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
             /// Creates 2^20 (1048576) signatures using the parameter set: (P(2, (10, 10), (5, 4), (2, 2)))
             /// <para>H: 10,10, W: 5,4, K: 2,2, PublicKey Size: 36, PrivateKey Size: 6846</para>
             /// </summary>
+            /// 
+
+            N2P10SHA512, // MZ@20190707
+
             N2P20,
             /// <summary>
             /// Creates 2^40 (1099511627776) signatures using the parameter set: (P(2, (10, 10, 10, 10), (9, 9, 9, 3), (2, 2, 2, 2)))
@@ -169,6 +173,8 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
             {
                 case GMSSParamNames.N2P10:
                     return (GMSSParameters)GMSSN2P10.DeepCopy();
+                case GMSSParamNames.N2P10SHA512:
+                    return (GMSSParameters)GMSSN2P10SHA512.DeepCopy();
                 case GMSSParamNames.N2P20:
                     return (GMSSParameters)GMSSN2P20.DeepCopy();
                 case GMSSParamNames.N2P40:
@@ -221,6 +227,10 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS
         /// <para>H: 10, W: 3, K: 2, PublicKey Size: 36, PrivateKey Size: 1806</para>
         /// </summary>
         public static GMSSParameters GMSSN2P10 = new GMSSParameters(new byte[] { (byte)AsymmetricEngines.GMSS, 1, 1, 1 }, 1, new int[] { 10 }, new int[] { 3 }, new int[] { 2 }, Digests.SHA256);
+
+        //MZ@20190707
+        public static GMSSParameters GMSSN2P10SHA512 = new GMSSParameters(new byte[] { (byte)AsymmetricEngines.GMSS, 1, 1, 1 }, 1, new int[] { 10 }, new int[] { 3 }, new int[] { 2 }, Digests.SHA512);
+
         /// <summary>
         /// Creates 2^20 (1048576) signatures using the parameter set: (P(2, (10, 10), (5, 4), (2, 2)))
         /// <para>H: 10,10, W: 5,4, K: 2,2, PublicKey Size: 36, PrivateKey Size: 6846</para>

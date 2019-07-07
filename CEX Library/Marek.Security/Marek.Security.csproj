@@ -1,18 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CEXEngine.NETStandard\CEXEngine.NETStandard.csproj" />
     <ProjectReference Include="..\Marek.Common\Marek.Common.csproj" />
-    <ProjectReference Include="..\Marek.Security\Marek.Security.csproj" />
   </ItemGroup>
 
 </Project>

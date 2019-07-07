@@ -1,14 +1,11 @@
 ﻿#region Directives
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Utility;
 using VTDev.Libraries.CEXEngine.Crypto.Common;
 using VTDev.Libraries.CEXEngine.Crypto.Digest;
 using VTDev.Libraries.CEXEngine.Utility;
-using static Marek.Common.Extensions;
 #endregion
 
 namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmetic
@@ -109,19 +106,6 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmeti
             len = reader.ReadInt32();
             data = reader.ReadBytes(len);
             byte[][] statByte = ArrayUtils.ToArray2x8(data);
-
-            //MZ@20190707
-            //if (statByte[0].Length == 0)
-            //    statByte[0] = null;
-            if (
-                statByte[0] == null || statByte[0].Length != 32
-                || statByte[1] == null || statByte[1].Length != 32
-                || statByte[2] == null || statByte[2].Length != 32
-            )
-            {
-
-            }
-
             len = reader.ReadInt32();
             data = reader.ReadBytes(len);
             int[] statInt = ArrayUtils.ToArray32(data);
@@ -192,43 +176,6 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmeti
             _seedActive = new byte[_msgDigestTree.DigestSize];
         }
 
-
-
-        //MZ220190707
-        public Treehash(IDigest Digest, string treehashSerialized)
-        {
-            var treehashSerializable = JsonConvert.DeserializeObject<TreehashSerializable>(treehashSerialized);
-
-            this._msgDigestTree = Digest;
-
-            // max height of current treehash instance.
-            this._maxHeight = treehashSerializable._maxHeight;
-            // Vector element that stores the nodes on the stack
-            this._tailStack = treehashSerializable._tailStack;
-            // Vector element that stores the height of the nodes on the stack
-            this._heightOfNodes = treehashSerializable._heightOfNodes;
-            // the first node is stored in the treehash instance itself, not on stack
-            this._firstNode = treehashSerializable._firstNode;
-            // seedActive needed for the actual node
-            this._seedActive = treehashSerializable._seedActive;
-            // the seed needed for the next re-initialization of the treehash instance
-            this._seedNext = treehashSerializable._seedNext;
-            // number of nodes stored on the stack and belonging to this treehash instance
-            this._tailLength = treehashSerializable._tailLength;
-            // the height in the tree of the first node stored in treehash
-            this._firstNodeHeight = treehashSerializable._firstNodeHeight;
-            // true if treehash instance was already initialized, false otherwise
-            this.m_isInitialized = treehashSerializable.m_isInitialized;
-            // true if the first node's height equals the maxHeight of the treehash
-            this._isFinished = treehashSerializable._isFinished;
-            // true if the nextSeed has been initialized with index 3*2^h needed for the seed scheduling
-            this._seedInitialized = treehashSerializable._seedInitialized;
-            //// denotes the Message Digest used by the tree to create nodes
-            //public IDigest _msgDigestTree;
-            this.m_isDisposed = treehashSerializable.m_isDisposed;
-        }
-
-
         /// <summary>
         /// Finalize objects
         /// </summary>
@@ -276,18 +223,7 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmeti
             _firstNode = null;
             _firstNodeHeight = -1;
             m_isInitialized = true;
-
-            //MZ@20190706
-            try
-            {
-                Array.Copy(_seedNext, 0, _seedActive, 0, _msgDigestTree.DigestSize);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-
+            Array.Copy(_seedNext, 0, _seedActive, 0, _msgDigestTree.DigestSize);
         }
 
         /// <summary>
@@ -347,8 +283,9 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmeti
         /// <returns>The status bytes</returns>
         public byte[][] GetStatByte()
         {
+
             byte[][] statByte = ArrayUtils.CreateJagged<byte[][]>(3 + _tailLength, _msgDigestTree.DigestSize);
-            statByte[0] = _firstNode; // ?? new byte[0]; //MZ@20190704
+            statByte[0] = _firstNode;
             statByte[1] = _seedActive;
             statByte[2] = _seedNext;
 
@@ -446,18 +383,6 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmeti
             return ToStream().ToArray();
         }
 
-        //MZ@20190707
-        public byte[] ToJsonBytes()
-        {
-            return Encoding.UTF8.GetBytes(ToJSON()).CompressToGZip();
-        }
-        public static Treehash FromJsonBytes(IDigest Digest, byte[] bytes)
-        {
-            return new Treehash(Digest, Encoding.UTF8.GetString(bytes.DecompressFromGZip()));
-        }
-
-        public static bool DEBUG_HIT_NOW = false;
-
         /// <summary>
         /// Converts the Treehash to an encoded MemoryStream
         /// </summary>
@@ -466,90 +391,18 @@ namespace VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS.Arithmeti
         public MemoryStream ToStream()
         {
             BinaryWriter writer = new BinaryWriter(new MemoryStream());
-            byte[] data = null;
+            byte[] data;
 
-            if (DEBUG_HIT_NOW)
-            {
-
-            }
-
-            byte[][] statByte = null;
-            try
-            {
-                statByte = GetStatByte();
-                data = ArrayUtils.ToBytes(statByte);
-            }
-
-            catch (Exception ex)
-            {
-
-            }
-
-            //MZ@20190707
-            if (
-                statByte[0] == null || statByte[0].Length != 32
-                || statByte[1] == null || statByte[1].Length != 32
-                || statByte[2] == null || statByte[2].Length != 32
-            )
-            {
-
-            }
-
-
+            data = ArrayUtils.ToBytes(GetStatByte());
             writer.Write(data.Length);
             writer.Write(data);
 
-            var statInt = GetStatInt(); //MZ@20190707
-
-            data = ArrayUtils.ToBytes(statInt);
+            data = ArrayUtils.ToBytes(GetStatInt());
             writer.Write(data.Length);
             writer.Write(data);
             writer.BaseStream.Seek(0, SeekOrigin.Begin);
 
-            var debugTest = ((MemoryStream)writer.BaseStream).Length;
-
-            if (GMSSPrivateKey.DEBUG_HIT_NOW)
-            {
-
-            }
-
             return (MemoryStream)writer.BaseStream;
-        }
-
-        //MZ@20190707
-        public string ToJSON()
-        {
-            TreehashSerializable treehashSerializable = new TreehashSerializable();
-
-            // max height of current treehash instance.
-            treehashSerializable._maxHeight = this._maxHeight;
-            // Vector element that stores the nodes on the stack
-            treehashSerializable._tailStack = this._tailStack;
-            // Vector element that stores the height of the nodes on the stack
-            treehashSerializable._heightOfNodes = this._heightOfNodes;
-            // the first node is stored in the treehash instance itself, not on stack
-            treehashSerializable._firstNode = this._firstNode;
-            // seedActive needed for the actual node
-            treehashSerializable._seedActive = this._seedActive;
-            // the seed needed for the next re-initialization of the treehash instance
-            treehashSerializable._seedNext = this._seedNext;
-            // number of nodes stored on the stack and belonging to this treehash instance
-            treehashSerializable._tailLength = this._tailLength;
-            // the height in the tree of the first node stored in treehash
-            treehashSerializable._firstNodeHeight = this._firstNodeHeight;
-            // true if treehash instance was already initialized, false otherwise
-            treehashSerializable.m_isInitialized = this.m_isInitialized;
-            // true if the first node's height equals the maxHeight of the treehash
-            treehashSerializable._isFinished = this._isFinished;
-            // true if the nextSeed has been initialized with index 3*2^h needed for the seed scheduling
-            treehashSerializable._seedInitialized = this._seedInitialized;
-            //// denotes the Message Digest used by the tree to create nodes
-            //public IDigest _msgDigestTree;
-            treehashSerializable.m_isDisposed = this.m_isDisposed;
-
-            var json = JsonConvert.SerializeObject(treehashSerializable);
-
-            return json;
         }
 
         /// <summary>

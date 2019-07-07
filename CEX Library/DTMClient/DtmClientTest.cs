@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Marek.Security;
+using System;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -30,39 +31,48 @@ namespace DTMClientTest
         #endregion
 
         #region Key Exchange
+
+        private IdentityWithGMSS _myIdentity; // MZ@20190707
+
         public void TestExchange()
         {
-            // dtm server exchange parameters X11RNS1R2
-            DtmParameters cltDtmParams = DtmParamSets.FromName(DtmParamSets.DtmParamNames.X99SUPER1); //.X11RNS1R2); //.X32RNR1R1);       // preset contains all the settings required for the exchange
+            using (IdentityWithGMSS identity = new IdentityWithGMSS("DMTClientTEST001", @"C:\_Marek\_GMSSTEST"))
+            {
+                _myIdentity = identity;
 
-            // dtm client id
-            DtmClientStruct cltDtmId = new DtmClientStruct(
-                new byte[] { 1, 1, 1, 1 },      // the clients public id, (should be at least 32 bytes, can be used as a contact lookup and initial auth)
-                new byte[] { 2, 2, 2, 2 });     // the clients secret id, (secret id can be anything.. a serialized structure, signed data, hash, etc)
+                // dtm server exchange parameters X11RNS1R2
+                DtmParameters cltDtmParams = DtmParamSets.FromName(DtmParamSets.DtmParamNames.X99SUPER1); //.X11RNS1R2); //.X32RNR1R1);       // preset contains all the settings required for the exchange
 
-            // create client
-            _dtmClient = new DtmKex(cltDtmParams, cltDtmId);
+                // dtm client id
+                DtmClientStruct cltDtmId = new DtmClientStruct(
+                    new byte[] { 1, 1, 1, 1 },      // the clients public id, (should be at least 32 bytes, can be used as a contact lookup and initial auth)
+                    identity.GenerateTestIdentityPacket("DTMServerTEST001", 3600)); //  new byte[] { 2, 2, 2, 2 });     // the clients secret id, (secret id can be anything.. a serialized structure, signed data, hash, etc)
 
-            _dtmClient.IdentityReceived += new DtmKex.IdentityReceivedDelegate(OnIdentityReceived);         // returns the client public and secret id fields, used to authenticate a host
-            _dtmClient.PacketReceived += new DtmKex.PacketReceivedDelegate(OnPacketReceived);               // notify that a packet has been received (optional)
-            _dtmClient.SessionEstablished += new DtmKex.SessionEstablishedDelegate(OnSessionEstablished);   // notify when the vpn state is up
-            _dtmClient.PacketSent += new DtmKex.PacketReceivedDelegate(OnPacketSent);                       // notify when a packet has been sent to the remote host (optional)
-            _dtmClient.DataReceived += new DtmKex.DataTransferredDelegate(OnDataReceived);                  // returns the decrypted message data
-            _dtmClient.FileReceived += new DtmKex.FileTransferredDelegate(OnFileReceived);                  // notify that a file transfer has completed
-            _dtmClient.FileRequest += new DtmKex.FileRequestDelegate(OnFileRequest);                        // notify that the remote host wants to send a file, can cancel or provide a path for the new file
-            _dtmClient.SessionError += new DtmKex.SessionErrorDelegate(OnSessionError);                     // notify of any error conditions; includes the exception, and a severity code contained in the option flag
+                // create client
+                _dtmClient = new DtmKex(cltDtmParams, cltDtmId);
 
-            // client connects and starts the exchange
-            _dtmClient.Connect(IPAddress.Loopback, 1024);
-            // wait for the connection
-            _initDone.WaitOne();
+                _dtmClient.IdentityReceived += new DtmKex.IdentityReceivedDelegate(OnIdentityReceived);         // returns the client public and secret id fields, used to authenticate a host
+                _dtmClient.PacketReceived += new DtmKex.PacketReceivedDelegate(OnPacketReceived);               // notify that a packet has been received (optional)
+                _dtmClient.SessionEstablished += new DtmKex.SessionEstablishedDelegate(OnSessionEstablished);   // notify when the vpn state is up
+                _dtmClient.PacketSent += new DtmKex.PacketReceivedDelegate(OnPacketSent);                       // notify when a packet has been sent to the remote host (optional)
+                _dtmClient.DataReceived += new DtmKex.DataTransferredDelegate(OnDataReceived);                  // returns the decrypted message data
+                _dtmClient.FileReceived += new DtmKex.FileTransferredDelegate(OnFileReceived);                  // notify that a file transfer has completed
+                _dtmClient.FileRequest += new DtmKex.FileRequestDelegate(OnFileRequest);                        // notify that the remote host wants to send a file, can cancel or provide a path for the new file
+                _dtmClient.SessionError += new DtmKex.SessionErrorDelegate(OnSessionError);                     // notify of any error conditions; includes the exception, and a severity code contained in the option flag
 
-            // forward secrecy framework
-            _dtmClient.KeyRequested += new DtmKex.KeyRequestedDelegate(OnKeyRequested);
-            _dtmClient.KeySynchronized += new DtmKex.KeySynchronizedDelegate(OnKeySynchronized);
+                // client connects and starts the exchange
+                _dtmClient.Connect(IPAddress.Loopback, 1024);
+                // wait for the connection
+                _initDone.WaitOne();
 
-            // start the message stream
-            StartMessageStream();
+                // forward secrecy framework
+                _dtmClient.KeyRequested += new DtmKex.KeyRequestedDelegate(OnKeyRequested);
+                _dtmClient.KeySynchronized += new DtmKex.KeySynchronizedDelegate(OnKeySynchronized);
+
+                // start the message stream
+                StartMessageStream();
+
+            }
         }
         #endregion
 
@@ -95,6 +105,15 @@ namespace DTMClientTest
         /// </summary>
         private void OnIdentityReceived(object owner, DtmIdentityArgs args)
         {
+            //MZ@20190707
+            if (args.Message == DtmExchangeFlags.Auth) // || args.Message == DtmExchangeFlags.Sync)
+            {
+                var authorizedClient = _myIdentity.VerifyTestIdentityPacket(args.DtmID.Identity, "DMTServerTEST001");
+                if (!authorizedClient)
+                    // TODO: Handle better!
+                    throw new Exception("Unauthorized server!");
+            }
+
             Console.WriteLine(CON_TITLE + String.Format("Client received an identity packet: {0}", IdToString(args.DtmID.Identity)));
         }
 

@@ -13,6 +13,8 @@ using System.Configuration;
 using VTDev.Libraries.CEXEngine.Crypto.Cipher.Asymmetric.Sign.GMSS;
 using Newtonsoft.Json;
 using System.Security.Cryptography;
+using Marek.Security.Jwt;
+using Marek.Security;
 
 namespace MarekTestConsole
 {
@@ -22,8 +24,6 @@ namespace MarekTestConsole
 
         public static byte[] Encrypt(byte[] dataIn, KeyParams keyParams = null) //, string passphrase = null)
         {
-
-
             //// populate a keyheader
             //KeyHeaderStruct keyHeader = new KeyHeaderStruct(
             //    Engines.RHX,        // cipher engine
@@ -155,14 +155,30 @@ namespace MarekTestConsole
             new VTDev.Libraries.CEXEngine.Crypto.Prng.CSPPrng().GetBytes(data);
 
 
+
+
+
+
+
+            // public key serialization test:
+            var pubKeySerialized = akp.PublicKey.ToBytes();
+
+
+            var pubKeyExported = $"-----BEGIN GMSS PUBLIC KEY-----{Environment.NewLine}{Convert.ToBase64String(pubKeySerialized, Base64FormattingOptions.InsertLineBreaks)}{Environment.NewLine}-----END GMSS PUBLIC KEY-----{Environment.NewLine}";
+            File.WriteAllText("TestPublicKey.txt", pubKeyExported);
+            var pubKeyImported = File.ReadAllText("TestPublicKey.txt").Replace($"-----BEGIN GMSS PUBLIC KEY-----{Environment.NewLine}", "").Replace($"-----END GMSS PUBLIC KEY-----{Environment.NewLine}", "");
+
+
+
+            var pubKey = GMSSPublicKey.From(Convert.FromBase64String(pubKeyImported));
+
+
             var currentPrivKey = ((GMSSPrivateKey)akp.PrivateKey); //.NextKey();
 
-            for (int i = 0; i < 2000; i++)
+            for (int i = 0; i < 10; i++) //2000; i++)
             {
                 try
                 {
-
-
                     //var test = JsonConvert.SerializeObject(akp);
 
                     using (GMSSSign sgn = new GMSSSign(CipherParam))
@@ -187,7 +203,13 @@ namespace MarekTestConsole
                             //if (i == 19)
                             //    currentPrivKey.DebugGetTreehashes("before");
                             var privKeySerialized = currentPrivKey.ToBytes();
-                            var currentPrivKeyRegen = GMSSPrivateKey.From(privKeySerialized);
+
+                            var privKeyExported = $"-----BEGIN GMSS.{GMSSVersion} PRIVATE KEY-----{Environment.NewLine}{Convert.ToBase64String(privKeySerialized, Base64FormattingOptions.InsertLineBreaks)}{Environment.NewLine}-----END GMSS PRIVATE KEY-----{Environment.NewLine}";
+                            File.WriteAllText("TestPrivateKey.txt", privKeyExported);
+                            var privKeyImported = File.ReadAllText("TestPrivateKey.txt").Replace($"-----BEGIN GMSS.{GMSSVersion} PRIVATE KEY-----{Environment.NewLine}", "").Replace($"-----END GMSS PRIVATE KEY-----{Environment.NewLine}", "");
+
+
+                            var currentPrivKeyRegen = GMSSPrivateKey.From(Convert.FromBase64String(privKeyImported));
                             //if (i == 19)
                             {
                                 using (SHA512Managed sha = new SHA512Managed())
@@ -201,7 +223,7 @@ namespace MarekTestConsole
 
                                     if(test1 != test2)
                                     {
-                                        GMSSPrivateKey.DEBUG_HIT_NOW = true;
+                                        //////GMSSPrivateKey.DEBUG_HIT_NOW = true;
                                         
                                         var test1b = ByteArrayToString(currentPrivKey.ToBytes());
                                         var test2b = ByteArrayToString(currentPrivKeyRegen.ToBytes());
@@ -215,6 +237,7 @@ namespace MarekTestConsole
                             //    currentPrivKey.DebugGetTreehashes("after");
                             //var xxx = 1;
                             currentPrivKey = currentPrivKeyRegen;
+
                             //var testXXX = currentPrivKey.NextKey();
 
                             //var test2 = JsonConvert.SerializeObject(currentPrivKeyCopy);
@@ -245,21 +268,12 @@ namespace MarekTestConsole
                         sgn.Initialize(currentPrivKey);
                         var code = sgn.Sign(new MemoryStream(data));
 
+                        File.WriteAllText("TestSignature.txt", Convert.ToBase64String(code));
 
-
-
-                        // public key serialization test:
-                        var pubKeySerialized = akp.PublicKey.ToBytes();
-                        var pubKeyDeserialized = GMSSPublicKey.From(pubKeySerialized);
-
-
-                        //////if (i == 19)
-                        //////{
-
-                        //////}
 
                         // verify the signature
-                        sgn.Initialize(pubKeyDeserialized);
+                        sgn.Initialize(pubKey);
+
                         if (!sgn.Verify(new MemoryStream(data), code))
                             throw new Exception("RLWESignTest: Verify test failed!");
 
@@ -285,17 +299,36 @@ namespace MarekTestConsole
             }
         }
 
+        private static GMSSParamSets.GMSSParamNames GMSSVersion = GMSSParamSets.GMSSParamNames.N2P10;
+
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
 
+            // GMSS/JWT test
+
+            string testLabel = "MarekTest123";
+
+            var keyPairFiles = GMSS.GenerateGMSSKeys(testLabel);
+
+            JwtPayload jwtPayload = new JwtPayload();
+            jwtPayload.Issuer = "Marek";
+            jwtPayload.IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            jwtPayload.NotBefore = jwtPayload.IssuedAt;
+            jwtPayload.Expires = jwtPayload.NotBefore + 3600;
+            jwtPayload.Subject = "MarekTester";
+            jwtPayload.Audience = "MarekTest";
+
+            var jwtEncoded = JsonWebToken.Encode(jwtPayload, keyPairFiles.Item1, JwtAlgorithm.GMSS512);
+
+            var jwtDecoded = JsonWebToken.Decode(jwtEncoded, keyPairFiles.Item2, "", "");
+
+            return;
+
 
             // GMSS TEST
 
-            TestSign(GMSSParamSets.FromName(GMSSParamSets.GMSSParamNames.N2P10));
-
-
-
+            TestSign(GMSSParamSets.FromName(GMSSVersion));
 
 
             return;

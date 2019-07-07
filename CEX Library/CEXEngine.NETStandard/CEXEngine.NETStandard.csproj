@@ -11,4 +11,12 @@
     <Compile Remove="Crypto\Seed\XSPRsg.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Marek.Common\Marek.Common.csproj" />
+  </ItemGroup>
+
 </Project>

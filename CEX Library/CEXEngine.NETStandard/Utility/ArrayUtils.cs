@@ -1908,7 +1908,21 @@ namespace VTDev.Libraries.CEXEngine.Utility
 
             // write the lengths
             writer.Write(Data.Length);
-            writer.Write(Data[0].Length);
+
+            //MZ@20190707
+            if (Data[0] == null) //MZ
+            {
+                Data[0] = new byte[0];
+                writer.Write(Data[1].Length);
+            }
+            try
+            {
+                writer.Write(Data[0].Length);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
 
             // write the data
             for (int i = 0; i < Data.Length; i++)
