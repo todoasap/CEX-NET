@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TcpClientWithSsl": {
+      "commandName": "Project",
+      "commandLineArgs": "localhost localhost"
+    }
+  }
+}

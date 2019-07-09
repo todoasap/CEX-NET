@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TcpServerWithSsl": {
+      "commandName": "Project",
+      "commandLineArgs": "Certificates\\DemoServer.pfx ev7PDIKnvhiENZaMj0ysuTGhxPCdfsQJ451fR27AkrcLMSsmgJE9eONr7XnrgTfA"
+    }
+  }
+}
